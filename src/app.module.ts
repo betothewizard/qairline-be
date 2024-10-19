@@ -1,11 +1,12 @@
 import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { NotesModule } from './notes/notes.module';
+import { UsersModule } from './Users/users.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { NoteEntity } from 'src/notes/entities/note.entity';
+import { UserEntity } from 'src/Users/entities/user.entity';
 import { DataSource } from 'typeorm';
 import { ConfigModule } from '@nestjs/config';
+import { AuthModule } from './Auth/auth.module';
 
 @Module({
   imports: [
@@ -13,11 +14,12 @@ import { ConfigModule } from '@nestjs/config';
     TypeOrmModule.forRoot({
       type: 'postgres',
       url: process.env.DATABASE_URL,
-      entities: [NoteEntity],
+      entities: [UserEntity],
       synchronize: true,
     }),
-    TypeOrmModule.forFeature([NoteEntity]),
-    NotesModule,
+    TypeOrmModule.forFeature([UserEntity]),
+    AuthModule,
+    UsersModule,
   ],
   controllers: [AppController],
   providers: [AppService],

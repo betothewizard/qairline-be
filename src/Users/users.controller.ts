@@ -8,36 +8,36 @@ import {
   Body,
   ValidationPipe,
 } from '@nestjs/common';
-import { NotesService } from './notes.service';
-import { NotesDto } from './dto/notes.dto';
-import { NoteEntity } from './entities/note.entity';
+import { UsersService as UsersService } from './users.service';
+import { UsersDto } from './dto/user.dto';
+import { UserEntity } from './entities/user.entity';
 
-@Controller('notes')
-export class NotesController {
-  constructor(private readonly notesService: NotesService) {}
+@Controller('user')
+export class UsersController {
+  constructor(private readonly notesService: UsersService) {}
 
   @Get()
-  async getAll(): Promise<NoteEntity[]> {
+  async getAll(): Promise<UserEntity[]> {
     return this.notesService.findAll();
   }
 
   @Post()
   async create(
-    @Body(new ValidationPipe()) notesDto: NotesDto,
-  ): Promise<NoteEntity> {
+    @Body(new ValidationPipe()) notesDto: UsersDto,
+  ): Promise<UserEntity> {
     return this.notesService.create(notesDto);
   }
 
   @Get('/:id')
-  async findOne(@Param('id') id: number): Promise<NoteEntity> {
+  async findOne(@Param('id') id: number): Promise<UserEntity> {
     return this.notesService.findOne(id);
   }
 
   @Put('/:id')
   async update(
     @Param('id') id: number,
-    @Body() notesDto: NotesDto,
-  ): Promise<NoteEntity> {
+    @Body() notesDto: UsersDto,
+  ): Promise<UserEntity> {
     return this.notesService.update(id, notesDto);
   }
 
