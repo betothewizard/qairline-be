@@ -5,6 +5,7 @@ import { UserEntity } from 'src/Users/entities/user.entity';
 import { LoginDto } from './dto/login.dto';
 import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
+import { RefreshTokenService } from 'src/tokens/tokens.service';
 
 @Injectable()
 export class AuthService {
@@ -12,6 +13,7 @@ export class AuthService {
     @InjectRepository(UserEntity)
     private readonly userRepository: Repository<UserEntity>,
     private readonly jwtService: JwtService,
+    private readonly refreshTokenService: RefreshTokenService,
   ) {}
 
   async validateUser(loginDto: LoginDto): Promise<UserEntity> {
@@ -40,6 +42,11 @@ export class AuthService {
       expiresIn: '10m',
     });
 
+    await this.refreshTokenService.saveToken(
+      user,
+      refreshToken,
+      new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+    );
     return {
       accessToken,
       refreshToken,
@@ -64,7 +71,7 @@ export class AuthService {
       if (!user) {
         throw new UnauthorizedException('User not found');
       }
-
+      await this.refreshTokenService.deleteToken(refreshToken);
       const newAccessToken = this.jwtService.sign(
         { sub: user.id, userName: user.userName },
         { expiresIn: '1m' },
@@ -73,6 +80,11 @@ export class AuthService {
       const newRefreshToken = this.jwtService.sign(
         { sub: user.id, userName: user.userName },
         { expiresIn: '10m' },
+      );
+      await this.refreshTokenService.saveToken(
+        user,
+        newRefreshToken,
+        new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
       );
       return { accessToken: newAccessToken, refreshToken: newRefreshToken };
     } catch (error) {

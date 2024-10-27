@@ -14,23 +14,23 @@ import { UserEntity } from './entities/user.entity';
 
 @Controller('user')
 export class UsersController {
-  constructor(private readonly notesService: UsersService) {}
+  constructor(private readonly usersService: UsersService) {}
 
   @Get()
   async getAll(): Promise<UserEntity[]> {
-    return this.notesService.findAll();
+    return this.usersService.findAll();
   }
 
   @Post()
   async create(
     @Body(new ValidationPipe()) notesDto: UsersDto,
   ): Promise<UserEntity> {
-    return this.notesService.create(notesDto);
+    return this.usersService.create(notesDto);
   }
 
   @Get('/:id')
   async findOne(@Param('id') id: number): Promise<UserEntity> {
-    return this.notesService.findOne(id);
+    return this.usersService.findOne(id);
   }
 
   @Put('/:id')
@@ -38,11 +38,11 @@ export class UsersController {
     @Param('id') id: number,
     @Body() notesDto: UsersDto,
   ): Promise<UserEntity> {
-    return this.notesService.update(id, notesDto);
+    return this.usersService.update(id, notesDto);
   }
 
   @Delete('/:id')
   async delete(@Param('id') id: number): Promise<boolean> {
-    return this.notesService.delete(id);
+    return this.usersService.delete(id);
   }
 }
