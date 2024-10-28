@@ -6,7 +6,6 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { UserEntity } from 'src/Users/entities/user.entity';
 import { DataSource } from 'typeorm';
 import { ConfigModule } from '@nestjs/config';
-import { AuthModule } from './Auth/auth.module';
 
 @Module({
   imports: [
@@ -18,9 +17,8 @@ import { AuthModule } from './Auth/auth.module';
       entities: [UserEntity],
       synchronize: true,
     }),
-    TypeOrmModule.forFeature([UserEntity]),
-    AuthModule,
-    UsersModule,
+    TypeOrmModule.forFeature([NoteEntity]),
+    NotesModule,
   ],
   controllers: [AppController],
   providers: [AppService],
