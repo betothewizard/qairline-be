@@ -6,6 +6,8 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { UserEntity } from 'src/Users/entities/user.entity';
 import { DataSource } from 'typeorm';
 import { ConfigModule } from '@nestjs/config';
+import { RefreshTokenEntity } from './Tokens/entities/refresh_token.entity';
+import { AuthModule } from './Auth/auth.module';
 
 @Module({
   imports: [
@@ -17,8 +19,9 @@ import { ConfigModule } from '@nestjs/config';
       entities: [UserEntity],
       synchronize: true,
     }),
-    TypeOrmModule.forFeature([NoteEntity]),
-    NotesModule,
+    TypeOrmModule.forFeature([UserEntity, RefreshTokenEntity]),
+    UsersModule,
+    AuthModule,
   ],
   controllers: [AppController],
   providers: [AppService],
