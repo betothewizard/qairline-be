@@ -9,7 +9,7 @@ import {
   ValidationPipe,
   UseGuards,
 } from '@nestjs/common';
-import { UsersService as UsersService } from './users.service';
+import { UserService as UsersService } from './users.service';
 import { UsersDto } from './dto/user.dto';
 import { UserEntity } from './entities/user.entity';
 import { JwtAuthGuard } from 'src/Auth/guards/jwt-auth.guard';
@@ -19,7 +19,7 @@ import { Role } from 'src/common/Enum/role.enum';
 
 @Controller('user')
 export class UsersController {
-  constructor(private readonly usersService: UsersService) {}
+  constructor(private readonly userService: UsersService) {}
 
   @UseGuards(JwtAuthGuard)
   @Get('protected')
@@ -29,7 +29,7 @@ export class UsersController {
 
   @Get()
   async getAll(): Promise<UserEntity[]> {
-    return this.usersService.findAll();
+    return this.userService.findAll();
   }
 
   @Post('create')
@@ -38,12 +38,12 @@ export class UsersController {
   async create(
     @Body(new ValidationPipe()) usersDto: UsersDto,
   ): Promise<UserEntity> {
-    return this.usersService.create(usersDto);
+    return this.userService.create(usersDto);
   }
 
   @Get('/:id')
   async findOne(@Param('id') id: number): Promise<UserEntity> {
-    return this.usersService.findOne(id);
+    return this.userService.findOne(id);
   }
 
   @Put('/:id')
@@ -51,11 +51,11 @@ export class UsersController {
     @Param('id') id: number,
     @Body() usersDto: UsersDto,
   ): Promise<UserEntity> {
-    return this.usersService.update(id, usersDto);
+    return this.userService.update(id, usersDto);
   }
 
   @Delete('/:id')
   async delete(@Param('id') id: number): Promise<boolean> {
-    return this.usersService.delete(id);
+    return this.userService.delete(id);
   }
 }
