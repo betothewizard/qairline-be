@@ -36,9 +36,9 @@ export class UsersController {
   @UseGuards(JwtAuthGuard, RolesGuard) // Sử dụng cả hai Guards
   @Roles(Role.Admin)
   async create(
-    @Body(new ValidationPipe()) notesDto: UsersDto,
+    @Body(new ValidationPipe()) usersDto: UsersDto,
   ): Promise<UserEntity> {
-    return this.usersService.create(notesDto);
+    return this.usersService.create(usersDto);
   }
 
   @Get('/:id')
@@ -49,9 +49,9 @@ export class UsersController {
   @Put('/:id')
   async update(
     @Param('id') id: number,
-    @Body() notesDto: UsersDto,
+    @Body() usersDto: UsersDto,
   ): Promise<UserEntity> {
-    return this.usersService.update(id, notesDto);
+    return this.usersService.update(id, usersDto);
   }
 
   @Delete('/:id')
