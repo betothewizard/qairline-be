@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { ConflictException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { UserEntity } from 'src/Users/entities/user.entity';
 import { Repository } from 'typeorm';
@@ -12,6 +12,14 @@ export class UsersService {
     private userRepository: Repository<UserEntity>,
   ) {}
   async create(userDto: UsersDto): Promise<UserEntity> {
+    const existingUser = await this.userRepository.findOne({
+      where: { email: userDto.email },
+    });
+    if (existingUser) {
+      throw new ConflictException(
+        'Email đã tồn tại. Vui lòng sử dụng email khác.',
+      );
+    }
     const salt = await bcrypt.genSalt();
     userDto.passWord = await bcrypt.hash(userDto.passWord, salt);
 

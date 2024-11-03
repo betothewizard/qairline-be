@@ -5,7 +5,7 @@ import { UserEntity } from 'src/Users/entities/user.entity';
 import { LoginDto } from './dto/login.dto';
 import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
-import { RefreshTokenService } from 'src/tokens/tokens.service';
+import { RefreshTokenService } from 'src/Tokens/tokens.service';
 
 @Injectable()
 export class AuthService {
@@ -34,7 +34,7 @@ export class AuthService {
     const payload = { userName: user.userName, sub: user.id };
     const accessToken = this.jwtService.sign(payload, {
       secret: process.env.JWT_SECRET,
-      expiresIn: '1m',
+      expiresIn: '5m',
     });
 
     const refreshToken = this.jwtService.sign(payload, {
@@ -74,7 +74,7 @@ export class AuthService {
       await this.refreshTokenService.deleteToken(refreshToken);
       const newAccessToken = this.jwtService.sign(
         { sub: user.id, userName: user.userName },
-        { expiresIn: '1m' },
+        { expiresIn: '5m' },
       );
 
       const newRefreshToken = this.jwtService.sign(

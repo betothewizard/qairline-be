@@ -1,5 +1,13 @@
-import { Entity, Column, PrimaryGeneratedColumn, OneToMany } from 'typeorm';
-import { RefreshTokenEntity } from 'src/tokens/entities/refresh_token.entity';
+import {
+  Entity,
+  Column,
+  PrimaryGeneratedColumn,
+  OneToMany,
+  CreateDateColumn,
+  UpdateDateColumn,
+} from 'typeorm';
+import { RefreshTokenEntity } from 'src/Tokens/entities/refresh_token.entity';
+import { Role } from 'src/common/Enum/role.enum';
 @Entity('user')
 export class UserEntity {
   @PrimaryGeneratedColumn()
@@ -10,6 +18,18 @@ export class UserEntity {
 
   @Column()
   passWord: string;
+
+  @Column({ unique: true })
+  email: string;
+
+  @Column({ type: 'enum', enum: Role, default: Role.User })
+  role: Role;
+
+  @CreateDateColumn({ type: 'timestamp' })
+  createdAt: Date;
+
+  @UpdateDateColumn({ type: 'timestamp' })
+  updatedAt: Date;
 
   @OneToMany(() => RefreshTokenEntity, (refreshToken) => refreshToken.user)
   refreshTokens: RefreshTokenEntity[];

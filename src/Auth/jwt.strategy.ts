@@ -17,7 +17,18 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
       secretOrKey: process.env.JWT_SECRET || 'defaultSecretKey',
     });
   }
+
   async validate(payload: any) {
-    return this.userRepository.findOne({ where: { id: payload.sub } });
+    // Lấy người dùng từ cơ sở dữ liệu
+    const user = await this.userRepository.findOne({
+      where: { id: payload.sub },
+    });
+
+    if (!user) {
+      return null; // Trả về null nếu không tìm thấy người dùng
+    }
+
+    // Trả về đối tượng bao gồm userId và role
+    return { userId: user.id, role: user.role };
   }
 }

@@ -7,8 +7,8 @@ import { UsersModule } from 'src/Users/users.module';
 import { PassportModule } from '@nestjs/passport';
 import { JwtModule } from '@nestjs/jwt';
 import { JwtStrategy } from './jwt.strategy';
-import { RefreshTokenService } from 'src/tokens/tokens.service';
-import { RefreshTokenEntity } from 'src/tokens/entities/refresh_token.entity';
+import { RefreshTokenService } from 'src/Tokens/tokens.service';
+import { RefreshTokenEntity } from 'src/Tokens/entities/refresh_token.entity';
 
 @Module({
   imports: [
