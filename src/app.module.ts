@@ -8,8 +8,11 @@ import { DataSource } from 'typeorm';
 import { ConfigModule } from '@nestjs/config';
 import { RefreshTokenEntity } from './Tokens/entities/refresh_token.entity';
 import { AuthModule } from './Auth/auth.module';
-import { ServeStaticModule } from '@nestjs/serve-static';
-import { join } from 'path';
+import { BookingsModule } from './bookings/bookings.module';
+import { Flight } from './flights/entities/flight.entity';
+import { Seat } from './seats/entities/seat.entity';
+import { Booking } from './bookings/entities/booking.entity';
+import { BookingSeat } from './bookings/entities/booking_seat.entity';
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -22,13 +25,17 @@ import { join } from 'path';
       entities: [UserEntity],
       synchronize: true,
     }),
-    ServeStaticModule.forRoot({
-      rootPath: join(__dirname, '..', 'src', 'mail', 'templates', 'images'),
-      serveRoot: '/images',
-    }),
-    TypeOrmModule.forFeature([UserEntity, RefreshTokenEntity]),
+    TypeOrmModule.forFeature([
+      UserEntity,
+      RefreshTokenEntity,
+      Flight,
+      Seat,
+      Booking,
+      BookingSeat,
+    ]),
     UsersModule,
     AuthModule,
+    BookingsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
