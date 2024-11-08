@@ -9,12 +9,14 @@ import { JwtModule } from '@nestjs/jwt';
 import { JwtStrategy } from './jwt.strategy';
 import { RefreshTokenService } from 'src/Tokens/tokens.service';
 import { RefreshTokenEntity } from 'src/Tokens/entities/refresh_token.entity';
+import { MailModule } from 'src/mail/mail.module';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([UserEntity, RefreshTokenEntity]),
     UsersModule,
     PassportModule,
+    MailModule,
     JwtModule.register({
       secret: process.env.JWT_SECRET || 'defaultSecretKey',
       //signOptions: { expiresIn: '1h' },

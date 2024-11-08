@@ -8,16 +8,23 @@ import { DataSource } from 'typeorm';
 import { ConfigModule } from '@nestjs/config';
 import { RefreshTokenEntity } from './Tokens/entities/refresh_token.entity';
 import { AuthModule } from './Auth/auth.module';
-
+import { ServeStaticModule } from '@nestjs/serve-static';
+import { join } from 'path';
 @Module({
   imports: [
-    ConfigModule.forRoot(),
+    ConfigModule.forRoot({
+      isGlobal: true,
+    }),
     TypeOrmModule.forRoot({
       type: 'postgres',
       url: process.env.DATABASE_URL,
       autoLoadEntities: true,
       entities: [UserEntity],
       synchronize: true,
+    }),
+    ServeStaticModule.forRoot({
+      rootPath: join(__dirname, '..', 'src', 'mail', 'templates', 'images'),
+      serveRoot: '/images',
     }),
     TypeOrmModule.forFeature([UserEntity, RefreshTokenEntity]),
     UsersModule,

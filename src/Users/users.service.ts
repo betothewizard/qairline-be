@@ -4,12 +4,14 @@ import { UserEntity } from 'src/Users/entities/user.entity';
 import { Repository } from 'typeorm';
 import { UsersDto } from 'src/Users/dto/user.dto';
 import * as bcrypt from 'bcrypt';
+import { MailService } from 'src/mail/mail.service';
 
 @Injectable()
 export class UserService {
   constructor(
     @InjectRepository(UserEntity)
     private userRepository: Repository<UserEntity>,
+    private mailService: MailService,
   ) {}
   async create(userDto: UsersDto): Promise<UserEntity> {
     const existingUser = await this.userRepository.findOne({
@@ -25,6 +27,24 @@ export class UserService {
 
     const user = this.userRepository.create(userDto);
     return this.userRepository.save(user);
+  }
+
+  async createUser(user: UserEntity): Promise<UserEntity> {
+    const existingUser = await this.userRepository.findOne({
+      where: { email: user.email },
+    });
+    if (existingUser) {
+      throw new ConflictException(
+        'Email đã tồn tại. Vui lòng sử dụng email khác.',
+      );
+    }
+    const salt = await bcrypt.genSalt();
+    user.passWord = await bcrypt.hash(user.passWord, salt);
+    const token = Math.floor(1000 + Math.random() * 9000).toString();
+    console.log(token);
+    const userEntity = this.userRepository.create(user);
+    await this.mailService.sendUserConfirmation(userEntity, token);
+    return this.userRepository.save(userEntity);
   }
 
   async findAll(): Promise<UserEntity[]> {
