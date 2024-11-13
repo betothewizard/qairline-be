@@ -12,8 +12,8 @@ import {
 import { UserService as UsersService } from './users.service';
 import { UsersDto } from './dto/user.dto';
 import { UserEntity } from './entities/user.entity';
-import { JwtAuthGuard } from 'src/Auth/guards/jwt-auth.guard';
-import { RolesGuard } from 'src/Auth/guards/roles.guard';
+import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
+import { RolesGuard } from 'src/auth/guards/roles.guard';
 import { Roles } from 'src/common/decorators/roles.decorator';
 import { Role } from 'src/common/Enum/role.enum';
 

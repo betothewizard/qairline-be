@@ -7,7 +7,7 @@ import { UserEntity } from 'src/users/entities/user.entity';
 import { DataSource } from 'typeorm';
 import { ConfigModule } from '@nestjs/config';
 import { RefreshTokenEntity } from './tokens/entities/refresh_token.entity';
-import { AuthModule } from './Auth/auth.module';
+import { AuthModule } from './auth/auth.module';
 import { BookingsModule } from './bookings/bookings.module';
 import { Flight } from './flights/entities/flight.entity';
 import { Seat } from './seats/entities/seat.entity';
