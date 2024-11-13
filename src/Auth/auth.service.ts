@@ -6,6 +6,10 @@ import { LoginDto } from './dto/login.dto';
 import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
 import { RefreshTokenService } from 'src/Tokens/tokens.service';
+import { MailService } from 'src/mail/mail.service';
+import { UserService } from 'src/Users/users.service';
+import { SignUpDto } from './dto/sign-up.dto';
+import { Role } from 'src/common/Enum/role.enum';
 
 @Injectable()
 export class AuthService {
@@ -14,11 +18,13 @@ export class AuthService {
     private readonly userRepository: Repository<UserEntity>,
     private readonly jwtService: JwtService,
     private readonly refreshTokenService: RefreshTokenService,
+    private mailService: MailService,
+    private userService: UserService,
   ) {}
 
   async validateUser(loginDto: LoginDto): Promise<UserEntity> {
     const user = await this.userRepository.findOne({
-      where: { userName: loginDto.userName },
+      where: { email: loginDto.email },
     });
 
     if (!user || !(await bcrypt.compare(loginDto.passWord, user.passWord))) {
@@ -31,7 +37,7 @@ export class AuthService {
   }
 
   async generateTokens(user: UserEntity) {
-    const payload = { userName: user.userName, sub: user.id };
+    const payload = { email: user.email, sub: user.id };
     const accessToken = this.jwtService.sign(payload, {
       secret: process.env.JWT_SECRET,
       expiresIn: '5m',
@@ -58,6 +64,17 @@ export class AuthService {
     return this.generateTokens(user);
   }
 
+  async signUp(signUpDto: SignUpDto): Promise<UserEntity> {
+    const { fullName, email, passWord } = signUpDto;
+    const newUser = new UserEntity();
+    newUser.fullName = fullName;
+    newUser.email = email;
+    newUser.passWord = passWord;
+    newUser.role = Role.User; // Thiết lập vai trò mặc định là User
+    // Lưu vào cơ sở dữ liệu
+    return this.userService.createUser(newUser);
+  }
+
   async refreshTokens(
     refreshToken: string,
   ): Promise<{ accessToken: string; refreshToken: string }> {
@@ -73,12 +90,12 @@ export class AuthService {
       }
       await this.refreshTokenService.deleteToken(refreshToken);
       const newAccessToken = this.jwtService.sign(
-        { sub: user.id, userName: user.userName },
+        { sub: user.id, email: user.email },
         { expiresIn: '5m' },
       );
 
       const newRefreshToken = this.jwtService.sign(
-        { sub: user.id, userName: user.userName },
+        { sub: user.id, email: user.email },
         { expiresIn: '10m' },
       );
       await this.refreshTokenService.saveToken(

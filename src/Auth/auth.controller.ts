@@ -1,6 +1,8 @@
 import { Body, Controller, Post, UnauthorizedException } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { LoginDto } from './dto/login.dto';
+import { UserEntity } from 'src/Users/entities/user.entity';
+import { SignUpDto } from './dto/sign-up.dto';
 
 @Controller('auth')
 export class AuthController {
@@ -17,5 +19,9 @@ export class AuthController {
       throw new UnauthorizedException('Refresh token is required');
     }
     return this.authService.refreshTokens(refreshToken);
+  }
+  @Post('signup')
+  async signUp(@Body() signUpDto: SignUpDto): Promise<UserEntity> {
+    return this.authService.signUp(signUpDto);
   }
 }
