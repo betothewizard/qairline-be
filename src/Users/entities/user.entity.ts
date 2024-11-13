@@ -6,7 +6,7 @@ import {
   CreateDateColumn,
   UpdateDateColumn,
 } from 'typeorm';
-import { RefreshTokenEntity } from 'src/Tokens/entities/refresh_token.entity';
+import { RefreshTokenEntity } from 'src/tokens/entities/refresh_token.entity';
 import { Role } from 'src/common/Enum/role.enum';
 @Entity('user')
 export class UserEntity {

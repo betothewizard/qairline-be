@@ -1,6 +1,6 @@
 import { Flight } from 'src/flights/entities/flight.entity';
 import { Seat } from 'src/seats/entities/seat.entity';
-import { UserEntity } from 'src/Users/entities/user.entity';
+import { UserEntity } from 'src/users/entities/user.entity';
 import {
   Entity,
   PrimaryGeneratedColumn,

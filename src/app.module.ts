@@ -1,12 +1,12 @@
 import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { UsersModule } from './Users/users.module';
+import { UsersModule } from './users/users.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { UserEntity } from 'src/Users/entities/user.entity';
+import { UserEntity } from 'src/users/entities/user.entity';
 import { DataSource } from 'typeorm';
 import { ConfigModule } from '@nestjs/config';
-import { RefreshTokenEntity } from './Tokens/entities/refresh_token.entity';
+import { RefreshTokenEntity } from './tokens/entities/refresh_token.entity';
 import { AuthModule } from './Auth/auth.module';
 import { BookingsModule } from './bookings/bookings.module';
 import { Flight } from './flights/entities/flight.entity';

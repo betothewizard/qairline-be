@@ -1,8 +1,8 @@
 import { ConflictException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { UserEntity } from 'src/Users/entities/user.entity';
+import { UserEntity } from 'src/users/entities/user.entity';
 import { Repository } from 'typeorm';
-import { UsersDto } from 'src/Users/dto/user.dto';
+import { UsersDto } from 'src/users/dto/user.dto';
 import * as bcrypt from 'bcrypt';
 import { MailService } from 'src/mail/mail.service';
 
