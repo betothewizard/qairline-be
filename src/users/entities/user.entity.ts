@@ -10,8 +10,8 @@ import { RefreshTokenEntity } from 'src/tokens/entities/refresh_token.entity';
 import { Role } from 'src/common/Enum/role.enum';
 @Entity('user')
 export class UserEntity {
-  @PrimaryGeneratedColumn()
-  id: number;
+  @PrimaryGeneratedColumn('uuid')
+  id: string;
 
   @Column()
   fullName: string;

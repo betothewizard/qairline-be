@@ -52,7 +52,7 @@ export class UserService {
   }
 
   async findOne(id: number): Promise<UserEntity> {
-    return this.userRepository.findOneBy({ id });
+    return this.userRepository.findOneBy({ id: id.toString() });
   }
 
   async update(id: number, notesDto: UsersDto): Promise<UserEntity> {

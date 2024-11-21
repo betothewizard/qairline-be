@@ -2,6 +2,7 @@ import { Flight } from 'src/flights/entities/flight.entity';
 import {
   Column,
   Entity,
+  Index,
   JoinColumn,
   ManyToOne,
   PrimaryGeneratedColumn,
@@ -13,7 +14,11 @@ export class Seat {
   id: string;
 
   @Column()
+  @Index()
   seat_number: string;
+
+  @Column({ type: 'boolean', default: false })
+  isBooked: boolean;
 
   @Column({
     type: 'enum',
@@ -23,9 +28,6 @@ export class Seat {
 
   @Column('decimal', { precision: 10, scale: 2 })
   price: number;
-
-  @Column({ default: false })
-  is_booked: boolean;
 
   @ManyToOne(() => Flight, (flight) => flight.id, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'flight_id' })

@@ -1,5 +1,4 @@
 import { Flight } from 'src/flights/entities/flight.entity';
-import { Seat } from 'src/seats/entities/seat.entity';
 import { UserEntity } from 'src/users/entities/user.entity';
 import {
   Entity,
@@ -14,9 +13,6 @@ import {
 export class Booking {
   @PrimaryGeneratedColumn('uuid')
   id: string;
-
-  @Column()
-  booking_code: string;
 
   @CreateDateColumn()
   booking_date: Date;
@@ -34,8 +30,4 @@ export class Booking {
   @ManyToOne(() => Flight, (flight) => flight.id, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'flight_id' })
   flight: Flight;
-
-  @ManyToOne(() => Seat, (seat) => seat.id, { onDelete: 'CASCADE' })
-  @JoinColumn({ name: 'seat_id' })
-  seat: Seat;
 }

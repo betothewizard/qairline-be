@@ -3,16 +3,15 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { UsersModule } from './users/users.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { UserEntity } from 'src/users/entities/user.entity';
 import { DataSource } from 'typeorm';
 import { ConfigModule } from '@nestjs/config';
-import { RefreshTokenEntity } from './tokens/entities/refresh_token.entity';
 import { AuthModule } from './auth/auth.module';
-import { BookingsModule } from './bookings/bookings.module';
-import { Flight } from './flights/entities/flight.entity';
-import { Seat } from './seats/entities/seat.entity';
-import { Booking } from './bookings/entities/booking.entity';
-import { BookingSeat } from './bookings/entities/booking_seat.entity';
+import { BookingModule } from './bookings/bookings.module';
+import { NotificationsModule } from './notification/notifications.module';
+import { FlightsModule } from './flights/flights.module';
+import { AirplanesModule } from './airplanes/airplanes.module';
+import { SeatsModule } from './seats/seats.module';
+import { BookingSeatModule } from './booking-seats/booking-seat.module';
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -22,20 +21,16 @@ import { BookingSeat } from './bookings/entities/booking_seat.entity';
       type: 'postgres',
       url: process.env.DATABASE_URL,
       autoLoadEntities: true,
-      entities: [UserEntity],
       synchronize: true,
     }),
-    TypeOrmModule.forFeature([
-      UserEntity,
-      RefreshTokenEntity,
-      Flight,
-      Seat,
-      Booking,
-      BookingSeat,
-    ]),
     UsersModule,
     AuthModule,
-    BookingsModule,
+    FlightsModule,
+    BookingModule,
+    NotificationsModule,
+    AirplanesModule,
+    SeatsModule,
+    BookingSeatModule,
   ],
   controllers: [AppController],
   providers: [AppService],

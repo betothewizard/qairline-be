@@ -1,9 +1,13 @@
+import { Airplane } from 'src/airplanes/entities/airplane.entity';
 import {
   Entity,
   PrimaryGeneratedColumn,
   Column,
   CreateDateColumn,
   UpdateDateColumn,
+  ManyToOne,
+  JoinColumn,
+  Index,
 } from 'typeorm';
 
 @Entity('flights')
@@ -12,22 +16,27 @@ export class Flight {
   id: string;
 
   @Column({ unique: true })
+  @Index()
   flight_code: string;
 
   @Column()
   airline: string;
 
   @Column()
-  origin: string;
+  origin: string; //nơi xuất phát
 
   @Column()
-  destination: string;
+  destination: string; //Nơi đến
+
+  @ManyToOne(() => Airplane)
+  @JoinColumn({ name: 'airplane_id' })
+  airplane: Airplane;
 
   @Column('timestamp')
-  departure_time: Date;
+  departure_time: Date; //Thời gian khởi hành
 
   @Column('timestamp')
-  arrival_time: Date;
+  arrival_time: Date; //Thời gian hạ cánh
 
   @Column({
     type: 'enum',

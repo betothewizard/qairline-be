@@ -1,5 +1,5 @@
-import { Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
-import { Booking } from './booking.entity';
+import { Entity, PrimaryGeneratedColumn, ManyToOne, JoinColumn } from 'typeorm';
+import { Booking } from 'src/bookings/entities/booking.entity';
 import { Seat } from 'src/seats/entities/seat.entity';
 
 @Entity('booking_seats')
