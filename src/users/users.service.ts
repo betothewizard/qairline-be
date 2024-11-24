@@ -23,7 +23,7 @@ export class UserService {
       );
     }
     const salt = await bcrypt.genSalt();
-    userDto.passWord = await bcrypt.hash(userDto.passWord, salt);
+    userDto.password = await bcrypt.hash(userDto.password, salt);
 
     const user = this.userRepository.create(userDto);
     return this.userRepository.save(user);
@@ -39,7 +39,7 @@ export class UserService {
       );
     }
     const salt = await bcrypt.genSalt();
-    user.passWord = await bcrypt.hash(user.passWord, salt);
+    user.password = await bcrypt.hash(user.password, salt);
     const token = Math.floor(1000 + Math.random() * 9000).toString();
     console.log(token);
     const userEntity = this.userRepository.create(user);

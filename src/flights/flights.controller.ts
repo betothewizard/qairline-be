@@ -20,7 +20,7 @@ export class FlightsController {
     return this.flightsService.create(createFlightDto);
   }
 
-  @Get()
+  @Get('sea')
   findAll() {
     return this.flightsService.findAll();
   }

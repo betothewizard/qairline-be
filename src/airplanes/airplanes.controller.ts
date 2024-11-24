@@ -24,7 +24,6 @@ export class AirplanesController {
   findAll() {
     return this.airplanesService.findAll();
   }
-
   @Get(':id')
   findOne(@Param('id') id: number) {
     return this.airplanesService.findOne(id);

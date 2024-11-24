@@ -27,7 +27,7 @@ export class AuthService {
       where: { email: loginDto.email },
     });
 
-    if (!user || !(await bcrypt.compare(loginDto.passWord, user.passWord))) {
+    if (!user || !(await bcrypt.compare(loginDto.password, user.password))) {
       throw new UnauthorizedException('Invalid credentials');
     }
 
@@ -65,11 +65,11 @@ export class AuthService {
   }
 
   async signUp(signUpDto: SignUpDto): Promise<UserEntity> {
-    const { fullName, email, passWord } = signUpDto;
+    const { fullName, email, password } = signUpDto;
     const newUser = new UserEntity();
     newUser.fullName = fullName;
     newUser.email = email;
-    newUser.passWord = passWord;
+    newUser.password = password;
     newUser.role = Role.User; // Thiết lập vai trò mặc định là User
     // Lưu vào cơ sở dữ liệu
     return this.userService.createUser(newUser);
