@@ -1,6 +1,6 @@
 import { Injectable, BadRequestException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { In, Repository } from 'typeorm';
+import { DataSource, In, Repository } from 'typeorm';
 import { Booking } from './entities/booking.entity';
 import { BookingSeat } from 'src/booking-seats/entities/booking-seat.entity';
 import { Seat } from 'src/seats/entities/seat.entity';
@@ -15,49 +15,55 @@ export class BookingService {
     private readonly bookingSeatRepository: Repository<BookingSeat>,
     @InjectRepository(Seat)
     private readonly seatRepository: Repository<Seat>,
+    private readonly dataSource: DataSource,
   ) {}
 
   async create(createBookingDto: CreateBookingDto) {
     const { user_id, flight_id, seat_ids } = createBookingDto;
 
-    // Kiểm tra ghế có tồn tại và chưa bị đặt
-    const seats = await this.seatRepository.find({
-      where: { id: In(seat_ids), isBooked: false },
-    });
+    return await this.dataSource.transaction(async (manager) => {
+      // Kiểm tra ghế
+      const seats = await manager.find(Seat, {
+        where: { id: In(seat_ids), isBooked: false },
+      });
 
-    // Kiểm tra tính hợp lệ của từng ghế
-    if (seats.length !== seat_ids.length) {
-      throw new BadRequestException('Một hoặc nhiều ghế không tồn tại.');
-    }
-
-    await this.seatRepository.update({ id: In(seat_ids) }, { isBooked: true });
-
-    // Tính tổng tiền từ giá của từng ghế
-    const totalPrice = seats.reduce((sum, seat) => {
-      const price = Number(seat.price); // Đảm bảo kiểu dữ liệu là number
-      if (isNaN(price)) {
-        throw new BadRequestException(`Giá không hợp lệ cho ghế ID ${seat.id}`);
+      if (seats.length !== seat_ids.length) {
+        throw new BadRequestException('Một hoặc nhiều ghế không tồn tại.');
       }
-      return sum + parseFloat(price.toFixed(2)); // Chuẩn hóa số thập phân
-    }, 0);
 
-    // Tạo bản ghi Booking
-    const booking = this.bookingRepository.create({
-      user: { id: user_id },
-      flight: { id: flight_id },
-      total_price: totalPrice, // Lưu tổng số tiền
+      // Cập nhật trạng thái ghế
+      await manager.update(Seat, { id: In(seat_ids) }, { isBooked: true });
+
+      // Tính tổng tiền
+      const totalPrice = seats.reduce((sum, seat) => {
+        const price = Number(seat.price);
+        if (isNaN(price)) {
+          throw new BadRequestException(
+            `Giá không hợp lệ cho ghế ID ${seat.id}`,
+          );
+        }
+        return sum + parseFloat(price.toFixed(2));
+      }, 0);
+
+      // Tạo booking
+      const booking = manager.create(Booking, {
+        user: { id: user_id },
+        flight: { id: flight_id },
+        total_price: totalPrice,
+      });
+      const savedBooking = await manager.save(Booking, booking);
+
+      // Tạo liên kết BookingSeat
+      const bookingSeats = seat_ids.map((seat_id) => ({
+        booking: savedBooking,
+        seat: { id: seat_id },
+      }));
+      await manager.insert(BookingSeat, bookingSeats);
+
+      return savedBooking;
     });
-    const savedBooking = await this.bookingRepository.save(booking);
-
-    // Tạo các bản ghi BookingSeat
-    const bookingSeats = seat_ids.map((seat_id) => ({
-      booking: savedBooking,
-      seat: { id: seat_id },
-    }));
-    await this.bookingSeatRepository.save(bookingSeats);
-
-    return savedBooking;
   }
+
   async cancelBooking(bookingId: string) {
     // Lấy thông tin ghế từ booking
     const bookingSeats = await this.bookingSeatRepository.find({

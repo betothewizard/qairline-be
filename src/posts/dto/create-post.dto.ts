@@ -6,10 +6,10 @@ import {
   IsDateString,
   IsArray,
 } from 'class-validator';
-import { NotificationType } from '../enum/notification-type.enum';
+import { PostType } from '../enum/post-type.enum';
 import { ApiProperty } from '@nestjs/swagger';
 
-export class CreateNotificationDto {
+export class CreatePostDto {
   @ApiProperty()
   @IsString()
   title: string;
@@ -19,9 +19,9 @@ export class CreateNotificationDto {
   content: string;
 
   @ApiProperty()
-  @IsEnum(NotificationType)
+  @IsEnum(PostType)
   @IsOptional()
-  type?: NotificationType;
+  type?: PostType;
 
   @ApiProperty()
   @IsDateString()

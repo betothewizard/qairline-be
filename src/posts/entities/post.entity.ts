@@ -5,10 +5,10 @@ import {
   CreateDateColumn,
   UpdateDateColumn,
 } from 'typeorm';
-import { NotificationType } from '../enum/notification-type.enum';
+import { PostType } from '../enum/post-type.enum';
 
 @Entity('notifications')
-export class Notification {
+export class PostEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
@@ -20,10 +20,10 @@ export class Notification {
 
   @Column({
     type: 'enum',
-    enum: NotificationType,
-    default: NotificationType.GENERAL,
+    enum: PostType,
+    default: PostType.GENERAL,
   })
-  type: NotificationType;
+  type: PostType;
 
   @CreateDateColumn()
   createdAt: Date;

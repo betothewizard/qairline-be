@@ -27,6 +27,10 @@ export class CreateFlightDto {
   arrival_time: Date;
 
   @ApiProperty()
+  @IsNumber()
+  total_seats: number;
+
+  @ApiProperty()
   @IsEnum(['scheduled', 'delayed', 'canceled', 'completed'])
   status: 'scheduled' | 'delayed' | 'canceled' | 'completed';
 

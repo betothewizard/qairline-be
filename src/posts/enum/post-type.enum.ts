@@ -1,4 +1,4 @@
-export enum NotificationType {
+export enum PostType {
   PROMOTION = 'PROMOTION', // Khuyến mãi
   NEWS = 'NEWS', // Tin tức
   ALERT = 'ALERT', // Cảnh báo

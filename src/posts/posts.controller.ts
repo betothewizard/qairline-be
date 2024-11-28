@@ -7,16 +7,16 @@ import {
   Param,
   Delete,
 } from '@nestjs/common';
-import { NotificationsService } from './notifications.service';
-import { CreateNotificationDto } from './dto/create-notification.dto';
-import { UpdateNotificationDto } from './dto/update-notification.dto';
+import { PostsService } from './posts.service';
+import { CreatePostDto } from './dto/create-post.dto';
+import { UpdatePostDto } from './dto/update-notification.dto';
 
-@Controller('notifications')
-export class NotificationsController {
-  constructor(private readonly notificationsService: NotificationsService) {}
+@Controller('posts')
+export class PostsController {
+  constructor(private readonly notificationsService: PostsService) {}
 
   @Post()
-  create(@Body() createNotificationDto: CreateNotificationDto) {
+  create(@Body() createNotificationDto: CreatePostDto) {
     return this.notificationsService.create(createNotificationDto);
   }
 
@@ -33,7 +33,7 @@ export class NotificationsController {
   @Patch(':id')
   update(
     @Param('id') id: string,
-    @Body() updateNotificationDto: UpdateNotificationDto,
+    @Body() updateNotificationDto: UpdatePostDto,
   ) {
     return this.notificationsService.update(id, updateNotificationDto);
   }

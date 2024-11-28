@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Between, Repository } from 'typeorm';
 import { Flight } from './entities/flight.entity';
 import { CreateFlightDto } from './dto/create-flight.dto';
 import { UpdateFlightDto } from './dto/update-flight.dto';
@@ -25,6 +25,24 @@ export class FlightsService {
     return this.flightRepository.findOne({
       where: { id },
       relations: ['airplane'],
+    });
+  }
+
+  async searchFlights(
+    departure: string,
+    arrival: string,
+    departureDate: string,
+  ) {
+    const startOfDay = new Date(departureDate);
+    const endOfDay = new Date(departureDate);
+    endOfDay.setHours(23, 59, 59, 999); // Kết thúc ngày
+
+    return await this.flightRepository.find({
+      where: {
+        origin: departure,
+        destination: arrival,
+        departure_time: Between(startOfDay, endOfDay), // Tìm trong khoảng ngày
+      },
     });
   }
 

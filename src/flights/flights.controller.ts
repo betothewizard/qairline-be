@@ -6,10 +6,12 @@ import {
   Patch,
   Param,
   Delete,
+  Query,
 } from '@nestjs/common';
 import { FlightsService } from './flights.service';
 import { CreateFlightDto } from './dto/create-flight.dto';
 import { UpdateFlightDto } from './dto/update-flight.dto';
+import { SearchFlight } from './dto/searchFlight.dto';
 
 @Controller('flights')
 export class FlightsController {
@@ -23,6 +25,15 @@ export class FlightsController {
   @Get('sea')
   findAll() {
     return this.flightsService.findAll();
+  }
+
+  @Get('search') // Sử dụng GET thay vì POST
+  async searchFlights(@Query() searchFlightDto: SearchFlight) {
+    return this.flightsService.searchFlights(
+      searchFlightDto.departure,
+      searchFlightDto.arrival,
+      searchFlightDto.departure_date,
+    );
   }
 
   @Get(':id')

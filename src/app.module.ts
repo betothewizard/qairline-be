@@ -7,7 +7,7 @@ import { DataSource } from 'typeorm';
 import { ConfigModule } from '@nestjs/config';
 import { AuthModule } from './auth/auth.module';
 import { BookingModule } from './bookings/bookings.module';
-import { NotificationsModule } from './notification/notifications.module';
+import { PostsModule } from './posts/posts.module';
 import { FlightsModule } from './flights/flights.module';
 import { AirplanesModule } from './airplanes/airplanes.module';
 import { SeatsModule } from './seats/seats.module';
@@ -27,7 +27,7 @@ import { BookingSeatModule } from './booking-seats/booking-seat.module';
     AuthModule,
     FlightsModule,
     BookingModule,
-    NotificationsModule,
+    PostsModule,
     AirplanesModule,
     SeatsModule,
     BookingSeatModule,

@@ -38,6 +38,9 @@ export class Flight {
   @Column('timestamp')
   arrival_time: Date; //Thời gian hạ cánh
 
+  @Column({ type: 'int', nullable: false, default: 0 })
+  total_seats: number;
+
   @Column({
     type: 'enum',
     enum: ['scheduled', 'delayed', 'canceled', 'completed'],

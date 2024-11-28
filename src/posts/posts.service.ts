@@ -1,18 +1,18 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { Notification } from './entities/notification.entity';
-import { CreateNotificationDto } from './dto/create-notification.dto';
-import { UpdateNotificationDto } from './dto/update-notification.dto';
+import { PostEntity } from './entities/post.entity';
+import { CreatePostDto } from './dto/create-post.dto';
+import { UpdatePostDto } from './dto/update-notification.dto';
 
 @Injectable()
-export class NotificationsService {
+export class PostsService {
   constructor(
-    @InjectRepository(Notification)
-    private readonly notificationRepository: Repository<Notification>,
+    @InjectRepository(PostEntity)
+    private readonly notificationRepository: Repository<PostEntity>,
   ) {}
 
-  create(createNotificationDto: CreateNotificationDto) {
+  create(createNotificationDto: CreatePostDto) {
     const notification = this.notificationRepository.create(
       createNotificationDto,
     );
@@ -27,7 +27,7 @@ export class NotificationsService {
     return this.notificationRepository.findOne({ where: { id } });
   }
 
-  update(id: string, updateNotificationDto: UpdateNotificationDto) {
+  update(id: string, updateNotificationDto: UpdatePostDto) {
     return this.notificationRepository.update(id, updateNotificationDto);
   }
 
