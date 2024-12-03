@@ -1,6 +1,15 @@
-import { Controller, Post, Body, Delete, Param } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+} from '@nestjs/common';
 import { BookingService } from './bookings.service';
 import { CreateBookingDto } from './dto/create-booking.dto';
+import { UpdateBookingDto } from './dto/update-booking.dto';
 
 @Controller('bookings')
 export class BookingController {
@@ -10,15 +19,24 @@ export class BookingController {
   create(@Body() createBookingDto: CreateBookingDto) {
     return this.bookingService.create(createBookingDto);
   }
-  @Delete(':id')
-  async cancelBooking(@Param('id') id: string) {
-    return await this.bookingService.cancelBooking(id);
+
+  @Get()
+  findAll() {
+    return this.bookingService.findAll();
   }
-  @Delete(':bookingId/seats')
-  async cancelSeatsInBooking(
-    @Param('bookingId') bookingId: string,
-    @Body('seatIds') seatIds: string[],
-  ) {
-    return this.bookingService.cancelSeatsInBooking(bookingId, seatIds);
+
+  @Get(':id')
+  findOne(@Param('id') id: string) {
+    return this.bookingService.findOne(id);
+  }
+
+  @Patch(':id')
+  update(@Param('id') id: string, @Body() updateBookingDto: UpdateBookingDto) {
+    return this.bookingService.update(id, updateBookingDto);
+  }
+
+  @Delete(':id')
+  remove(@Param('id') id: string) {
+    return this.bookingService.remove(id);
   }
 }

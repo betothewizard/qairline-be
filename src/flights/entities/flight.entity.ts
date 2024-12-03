@@ -1,4 +1,7 @@
 import { Airplane } from 'src/airplanes/entities/airplane.entity';
+import { Seat } from 'src/seats/entities/seat.entity';
+import { BookingDetail } from 'src/booking-details/entities/booking-detail.entity';
+import { Booking } from 'src/bookings/entities/booking.entity';
 import {
   Entity,
   PrimaryGeneratedColumn,
@@ -6,6 +9,7 @@ import {
   CreateDateColumn,
   UpdateDateColumn,
   ManyToOne,
+  OneToMany,
   JoinColumn,
   Index,
 } from 'typeorm';
@@ -38,7 +42,7 @@ export class Flight {
   @Column('timestamp')
   arrival_time: Date; //Thời gian hạ cánh
 
-  @Column({ type: 'int', nullable: false, default: 0 })
+  @Column({ type: 'int', nullable: false })
   total_seats: number;
 
   @Column({
@@ -50,6 +54,13 @@ export class Flight {
 
   @Column('decimal', { precision: 10, scale: 2 })
   price: number;
+
+  @OneToMany(() => Seat, (seat) => seat.flight, { cascade: true })
+  seats: Seat[];
+  @OneToMany(() => BookingDetail, (bookingDetail) => bookingDetail.flight)
+  bookingDetails: BookingDetail[];
+  @OneToMany(() => Booking, (booking) => booking.flight)
+  bookings: Booking[];
 
   @CreateDateColumn()
   created_at: Date;

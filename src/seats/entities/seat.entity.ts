@@ -1,10 +1,11 @@
 import { Flight } from 'src/flights/entities/flight.entity';
+import { BookingDetail } from 'src/booking-details/entities/booking-detail.entity';
 import {
   Column,
   Entity,
-  Index,
-  JoinColumn,
+  OneToMany,
   ManyToOne,
+  JoinColumn,
   PrimaryGeneratedColumn,
 } from 'typeorm';
 
@@ -13,12 +14,8 @@ export class Seat {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column()
-  @Index()
+  @Column({ nullable: false })
   seat_number: string;
-
-  @Column({ type: 'boolean', default: false })
-  isBooked: boolean;
 
   @Column({
     type: 'enum',
@@ -29,7 +26,13 @@ export class Seat {
   @Column('decimal', { precision: 10, scale: 2 })
   price: number;
 
-  @ManyToOne(() => Flight, (flight) => flight.id, { onDelete: 'CASCADE' })
+  @Column({ default: false })
+  isBooked: boolean;
+
+  @ManyToOne(() => Flight, (flight) => flight.seats, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'flight_id' })
   flight: Flight;
+
+  @OneToMany(() => BookingDetail, (bookingDetail) => bookingDetail.seat)
+  bookingDetails: BookingDetail[]; // Quan hệ ngược
 }

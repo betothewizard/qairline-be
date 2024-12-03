@@ -1,18 +1,17 @@
-import { ApiProperty } from '@nestjs/swagger';
-import { IsUUID, IsArray, ArrayNotEmpty } from 'class-validator';
+import { IsNotEmpty, IsUUID, IsDecimal, IsArray } from 'class-validator';
 
 export class CreateBookingDto {
-  @ApiProperty()
   @IsUUID()
-  user_id: string;
+  @IsNotEmpty()
+  flightId: string;
 
-  @ApiProperty()
   @IsUUID()
-  flight_id: string;
+  @IsNotEmpty()
+  userId: string;
 
-  @ApiProperty()
+  @IsDecimal()
+  totalPrice: number;
+
   @IsArray()
-  @ArrayNotEmpty()
-  @IsUUID('4', { each: true })
-  seat_ids: string[];
+  bookingDetails: any[]; // Replace with BookingDetail DTO if available
 }

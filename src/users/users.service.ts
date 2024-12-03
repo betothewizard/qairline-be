@@ -38,13 +38,26 @@ export class UserService {
         'Email đã tồn tại. Vui lòng sử dụng email khác.',
       );
     }
+
     const salt = await bcrypt.genSalt();
     user.password = await bcrypt.hash(user.password, salt);
+
     const token = Math.floor(1000 + Math.random() * 9000).toString();
     console.log(token);
+
     const userEntity = this.userRepository.create(user);
-    await this.mailService.sendUserConfirmation(userEntity, token);
-    return this.userRepository.save(userEntity);
+
+    try {
+      // Chờ và kiểm tra việc gửi email
+      await this.mailService.sendUserConfirmation(userEntity, token);
+
+      // Nếu email gửi thành công, mới lưu người dùng
+      return this.userRepository.save(userEntity);
+    } catch (error) {
+      // Nếu gửi email thất bại, ném lỗi và không tạo người dùng
+      console.error('Failed to send email:', error);
+      throw new Error('Gửi email thất bại. Vui lòng thử lại.');
+    }
   }
 
   async findAll(): Promise<UserEntity[]> {

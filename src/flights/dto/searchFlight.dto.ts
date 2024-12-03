@@ -1,15 +1,34 @@
-import { IsString, IsNotEmpty, IsDateString } from 'class-validator';
+import {
+  IsNotEmpty,
+  IsString,
+  IsDateString,
+  IsInt,
+  Min,
+} from 'class-validator';
+import { Type } from 'class-transformer';
 
-export class SearchFlight {
-  @IsString()
+export class SearchFlightDto {
   @IsNotEmpty()
+  @IsString()
   departure: string;
 
-  @IsString()
   @IsNotEmpty()
+  @IsString()
   arrival: string;
 
-  @IsDateString()
   @IsNotEmpty()
+  @IsDateString()
   departure_date: string;
+
+  @IsNotEmpty()
+  @Type(() => Number)
+  @IsInt()
+  @Min(0)
+  adults: number;
+
+  @IsNotEmpty()
+  @Type(() => Number)
+  @IsInt()
+  @Min(0)
+  children: number;
 }

@@ -15,16 +15,33 @@ export class SeatService {
   ) {}
 
   async create(createSeatDto: CreateSeatDto): Promise<Seat> {
-    // Tìm flight dựa trên flight_id
-    const flight = await this.flightRepository.findOneBy({
-      id: createSeatDto.flight_id,
+    // Tìm chuyến bay theo flight_id
+    const flight = await this.flightRepository.findOne({
+      where: { id: createSeatDto.flight_id },
     });
 
     if (!flight) {
       throw new Error('Flight not found');
     }
 
-    // Tạo bản ghi seat với flight
+    // Kiểm tra nếu ghế đã tồn tại trên chuyến bay này
+    const existingSeat = await this.seatRepository.findOne({
+      where: {
+        seat_number: createSeatDto.seat_number,
+        flight: { id: createSeatDto.flight_id }, // Kiểm tra chuyến bay
+      },
+    });
+
+    if (existingSeat) {
+      // Kiểm tra trạng thái ghế
+      if (existingSeat.isBooked) {
+        throw new Error('Seat is already booked');
+      }
+      // Nếu ghế tồn tại và chưa được đặt, có thể không cần tạo mới hoặc xử lý tiếp
+      throw new Error('Seat already exists on this flight');
+    }
+
+    // Tạo ghế mới nếu không tồn tại
     const seat = this.seatRepository.create({
       ...createSeatDto,
       flight,

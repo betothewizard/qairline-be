@@ -11,7 +11,6 @@ import { PostsModule } from './posts/posts.module';
 import { FlightsModule } from './flights/flights.module';
 import { AirplanesModule } from './airplanes/airplanes.module';
 import { SeatsModule } from './seats/seats.module';
-import { BookingSeatModule } from './booking-seats/booking-seat.module';
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -21,7 +20,7 @@ import { BookingSeatModule } from './booking-seats/booking-seat.module';
       type: 'postgres',
       url: process.env.DATABASE_URL,
       autoLoadEntities: true,
-      synchronize: true,
+      synchronize: false,
     }),
     UsersModule,
     AuthModule,
@@ -30,7 +29,6 @@ import { BookingSeatModule } from './booking-seats/booking-seat.module';
     PostsModule,
     AirplanesModule,
     SeatsModule,
-    BookingSeatModule,
   ],
   controllers: [AppController],
   providers: [AppService],

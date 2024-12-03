@@ -8,6 +8,7 @@ import {
 } from 'typeorm';
 import { RefreshTokenEntity } from 'src/tokens/entities/refresh_token.entity';
 import { Role } from 'src/common/Enum/role.enum';
+import { Booking } from 'src/bookings/entities/booking.entity';
 @Entity('user')
 export class UserEntity {
   @PrimaryGeneratedColumn('uuid')
@@ -33,4 +34,7 @@ export class UserEntity {
 
   @OneToMany(() => RefreshTokenEntity, (refreshToken) => refreshToken.user)
   refreshTokens: RefreshTokenEntity[];
+
+  @OneToMany(() => Booking, (booking) => booking.user)
+  bookings: Booking[];
 }

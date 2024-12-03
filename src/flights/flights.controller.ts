@@ -7,11 +7,12 @@ import {
   Param,
   Delete,
   Query,
+  BadRequestException,
 } from '@nestjs/common';
 import { FlightsService } from './flights.service';
 import { CreateFlightDto } from './dto/create-flight.dto';
 import { UpdateFlightDto } from './dto/update-flight.dto';
-import { SearchFlight } from './dto/searchFlight.dto';
+import { SearchFlightDto } from './dto/searchFlight.dto';
 
 @Controller('flights')
 export class FlightsController {
@@ -22,18 +23,23 @@ export class FlightsController {
     return this.flightsService.create(createFlightDto);
   }
 
-  @Get('sea')
+  @Get('all')
   findAll() {
     return this.flightsService.findAll();
   }
 
-  @Get('search') // Sử dụng GET thay vì POST
-  async searchFlights(@Query() searchFlightDto: SearchFlight) {
-    return this.flightsService.searchFlights(
-      searchFlightDto.departure,
-      searchFlightDto.arrival,
-      searchFlightDto.departure_date,
-    );
+  @Get('search')
+  async searchFlights(@Query() searchFlightDto: SearchFlightDto) {
+    const flights =
+      await this.flightsService.searchFlightsWithPassengers(searchFlightDto);
+
+    if (flights.length === 0) {
+      throw new BadRequestException(
+        'No flights available with enough seats for the requested passengers.',
+      );
+    }
+
+    return flights;
   }
 
   @Get(':id')
