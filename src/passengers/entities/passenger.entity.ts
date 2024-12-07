@@ -3,66 +3,52 @@ import {
   Entity,
   PrimaryGeneratedColumn,
   Column,
-  OneToMany,
   CreateDateColumn,
   UpdateDateColumn,
-  Index,
+  OneToMany,
 } from 'typeorm';
 
-export enum PassengerType {
-  ADULT = 'adult',
-  CHILD = 'child',
-}
-
-export enum Gender {
-  MALE = 'male',
-  FEMALE = 'female',
-  OTHER = 'other',
-}
-
-@Entity('passengers')
+@Entity('passengers') // Tên bảng trong cơ sở dữ liệu
 export class Passenger {
   @PrimaryGeneratedColumn('uuid')
-  id: string;
+  id: string; // ID duy nhất cho hành khách
 
-  @Index()
-  @Column()
-  name: string; // Tên hành khách
+  @Column({ type: 'enum', enum: ['adult', 'child'], default: 'adult' })
+  type: 'adult' | 'child'; // Loại hành khách: người lớn hoặc trẻ em
 
-  @Column({
-    type: 'enum',
-    enum: Gender,
-  })
-  gender: Gender; // Giới tính
+  @Column({ type: 'enum', enum: ['male', 'female', 'other'], default: 'male' })
+  gender: 'male' | 'female' | 'other'; // Giới tính
 
-  @Column({
-    type: 'date',
-    nullable: true,
-  })
-  date_of_birth: Date | null; // Ngày sinh
+  @Column({ length: 50 })
+  firstName: string; // Họ
 
-  @Column({
-    type: 'enum',
-    enum: PassengerType,
-    default: PassengerType.ADULT,
-  })
-  type: PassengerType; // Loại hành khách: Người lớn/Trẻ em
+  @Column({ length: 50 })
+  lastName: string; // Tên đệm và tên
 
-  @Index()
-  @Column({
-    type: 'varchar',
-    length: 12,
-    unique: true,
-    nullable: true,
-  })
-  citizen_id: string | null; // Số căn cước công dân
+  @Column({ type: 'date' })
+  dateOfBirth: Date; // Ngày sinh
 
-  @CreateDateColumn()
-  created_at: Date;
+  @Column({ length: 50, default: 'Vietnam' })
+  nationality: string; // Quốc gia
 
-  @UpdateDateColumn()
-  updated_at: Date;
+  @Column({ length: 20, nullable: true })
+  phoneNumber: string; // Số điện thoại (có thể null)
+
+  @Column({ length: 100, nullable: true })
+  email: string; // Email (có thể null)
+
+  @Column({ length: 50, nullable: true })
+  idCardOrPassport: string; // CCCD hoặc Passport
+
+  @Column({ type: 'text', nullable: true })
+  currentAddress: string; // Nơi ở hiện tại
 
   @OneToMany(() => BookingDetail, (bookingDetail) => bookingDetail.passenger)
   bookingDetails: BookingDetail[];
+
+  @CreateDateColumn()
+  createdAt: Date; // Thời gian tạo
+
+  @UpdateDateColumn()
+  updatedAt: Date; // Thời gian cập nhật
 }

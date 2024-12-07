@@ -64,7 +64,6 @@ export class FlightsService {
       destination: flight.destination,
       departure_time: flight.departure_time,
       arrival_time: flight.arrival_time,
-      price: flight.price,
       available_seats: flight.seats.filter((seat) => !seat.isBooked).length, // Số ghế còn
     }));
   }

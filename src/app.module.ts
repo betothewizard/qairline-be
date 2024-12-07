@@ -6,11 +6,13 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { DataSource } from 'typeorm';
 import { ConfigModule } from '@nestjs/config';
 import { AuthModule } from './auth/auth.module';
-import { BookingModule } from './bookings/bookings.module';
+import { BookingsModule } from './bookings/bookings.module';
 import { PostsModule } from './posts/posts.module';
 import { FlightsModule } from './flights/flights.module';
 import { AirplanesModule } from './airplanes/airplanes.module';
 import { SeatsModule } from './seats/seats.module';
+import { PassengersModule } from './passengers/passengers.module';
+import { BookingDetailsModule } from './booking-details/booking-detail.module';
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -20,15 +22,17 @@ import { SeatsModule } from './seats/seats.module';
       type: 'postgres',
       url: process.env.DATABASE_URL,
       autoLoadEntities: true,
-      synchronize: false,
+      synchronize: true,
     }),
     UsersModule,
     AuthModule,
     FlightsModule,
-    BookingModule,
+    BookingsModule,
     PostsModule,
     AirplanesModule,
     SeatsModule,
+    PassengersModule,
+    BookingDetailsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

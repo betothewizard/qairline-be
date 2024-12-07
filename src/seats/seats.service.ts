@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Seat } from './entities/seat.entity';
@@ -48,6 +48,26 @@ export class SeatService {
     });
 
     return this.seatRepository.save(seat);
+  }
+
+  async selectSeat(seatNumber: string, flightId: string): Promise<Seat> {
+    const seat = await this.seatRepository.findOne({
+      where: { seat_number: seatNumber, flight: { id: flightId } },
+      relations: ['flight'], // Optional: lấy thêm thông tin về chuyến bay
+    });
+
+    if (!seat) {
+      throw new NotFoundException('Seat not found');
+    }
+
+    if (seat.isBooked) {
+      throw new Error('This seat is already booked');
+    }
+
+    seat.isBooked = true;
+    await this.seatRepository.save(seat);
+
+    return seat;
   }
 
   findAll() {

@@ -19,11 +19,12 @@ export class Seat {
 
   @Column({
     type: 'enum',
-    enum: ['economy', 'business', 'first'],
+    enum: ['Business', 'SkyBoss', 'Deluxe', 'Eco'],
+    default: 'Eco',
   })
-  class: 'economy' | 'business' | 'first';
+  ticket_class: 'Business' | 'SkyBoss' | 'Deluxe' | 'Eco'; // Hạng vé
 
-  @Column('decimal', { precision: 10, scale: 2 })
+  @Column({ type: 'decimal', precision: 10, scale: 2, default: 0 })
   price: number;
 
   @Column({ default: false })

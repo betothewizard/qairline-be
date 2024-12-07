@@ -1,16 +1,23 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsUUID, IsString, IsEnum, IsNumber } from 'class-validator';
+import {
+  IsUUID,
+  IsString,
+  IsEnum,
+  IsNumber,
+  IsNotEmpty,
+} from 'class-validator';
 
 export class CreateSeatDto {
   @ApiProperty()
   @IsString()
   seat_number: string;
 
-  @ApiProperty()
-  @IsEnum(['economy', 'business', 'first'])
-  class: 'economy' | 'business' | 'first';
+  @IsEnum(['Business', 'SkyBoss', 'Deluxe', 'Eco'])
+  @IsNotEmpty()
+  ticket_class: 'Business' | 'SkyBoss' | 'Deluxe' | 'Eco';
 
   @ApiProperty()
+  @IsNotEmpty()
   @IsNumber()
   price: number;
 

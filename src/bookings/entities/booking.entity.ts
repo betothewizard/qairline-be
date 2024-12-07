@@ -1,31 +1,27 @@
-import { Flight } from 'src/flights/entities/flight.entity';
-import { UserEntity } from 'src/users/entities/user.entity';
-import { BookingDetail } from 'src/booking-details/entities/booking-detail.entity';
 import {
   Entity,
   PrimaryGeneratedColumn,
   Column,
-  ManyToOne,
   OneToMany,
+  ManyToOne,
   JoinColumn,
+  Index,
   CreateDateColumn,
   UpdateDateColumn,
-  Index,
 } from 'typeorm';
-
+import { BookingDetail } from 'src/booking-details/entities/booking-detail.entity';
+import { Flight } from 'src/flights/entities/flight.entity';
+import { UserEntity } from 'src/users/entities/user.entity';
 @Entity('bookings')
 export class Booking {
   @PrimaryGeneratedColumn('uuid')
-  id: string;
+  id: string; // Khóa chính
 
-  @CreateDateColumn()
-  booking_date: Date; // Thời gian tạo đơn đặt vé
-
-  @UpdateDateColumn()
-  updated_at: Date; // Thời gian cập nhật trạng thái đặt vé
+  @Column({ type: 'varchar', length: 50, nullable: true })
+  booking_code: string; // Mã đặt chỗ (tự sinh hoặc theo định dạng như Vietjet)
 
   @Column({ type: 'decimal', precision: 10, scale: 2 })
-  total_price: number; // Tổng giá trị của đơn đặt vé
+  total_price: number; // Tổng giá trị đặt chỗ (bao gồm tất cả hành khách và dịch vụ)
 
   @Column({
     type: 'enum',
@@ -42,10 +38,16 @@ export class Booking {
   @ManyToOne(() => Flight, (flight) => flight.bookings, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'flight_id' })
   @Index()
-  flight: Flight; // Chuyến bay được đặt vé
+  flight: Flight;
 
   @OneToMany(() => BookingDetail, (bookingDetail) => bookingDetail.booking, {
     cascade: true,
   })
-  bookingDetails: BookingDetail[]; // Chi tiết đặt vé
+  bookingDetails: BookingDetail[]; // Liên kết đến bảng BookingDetail
+
+  @CreateDateColumn({ type: 'timestamp' })
+  created_at: Date; // Ngày giờ tạo
+
+  @UpdateDateColumn({ type: 'timestamp' })
+  updated_at: Date; // Ngày giờ cập nhật
 }

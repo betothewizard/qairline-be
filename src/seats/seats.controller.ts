@@ -9,6 +9,7 @@ import {
 } from '@nestjs/common';
 import { SeatService } from './seats.service';
 import { CreateSeatDto } from './dto/create-seat.dto';
+import { Seat } from './entities/seat.entity';
 
 @Controller('seats')
 export class SeatController {
@@ -17,6 +18,15 @@ export class SeatController {
   @Post()
   create(@Body() createSeatDto: CreateSeatDto) {
     return this.seatService.create(createSeatDto);
+  }
+
+  // seats/seats.controller.ts
+  @Post(':seatNumber/select/:flightId')
+  async selectSeat(
+    @Param('seatNumber') seatNumber: string,
+    @Param('flightId') flightId: string,
+  ): Promise<Seat> {
+    return await this.seatService.selectSeat(seatNumber, flightId);
   }
 
   @Get()

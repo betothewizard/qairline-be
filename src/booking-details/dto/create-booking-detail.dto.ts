@@ -1,24 +1,15 @@
-// src/booking-details/dto/create-booking-detail.dto.ts
-import { IsNotEmpty, IsNumber, IsUUID } from 'class-validator';
+import { IsUUID, IsNotEmpty } from 'class-validator';
 
 export class CreateBookingDetailDto {
-  @IsNotEmpty()
   @IsUUID()
-  booking_id: string;
-
   @IsNotEmpty()
+  seat_id: string; // ID của ghế (để liên kết với bảng Seat)
+
   @IsUUID()
-  passenger_id: string;
-
   @IsNotEmpty()
+  passenger_id: string; // ID của hành khách (để liên kết với bảng Passenger)
+
   @IsUUID()
-  seat_id: string;
-
   @IsNotEmpty()
-  @IsUUID()
-  flight_id: string;
-
-  @IsNotEmpty()
-  @IsNumber()
-  price: number;
+  booking_id: string; // ID của booking (để liên kết với bảng Booking)
 }

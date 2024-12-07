@@ -1,42 +1,46 @@
 import {
   Controller,
-  Get,
   Post,
   Body,
-  Patch,
-  Param,
-  Delete,
+  BadRequestException,
+  Get,
 } from '@nestjs/common';
-import { BookingService } from './bookings.service';
+import { BookingsService } from './bookings.service';
 import { CreateBookingDto } from './dto/create-booking.dto';
-import { UpdateBookingDto } from './dto/update-booking.dto';
+import { Booking } from './entities/booking.entity';
 
 @Controller('bookings')
-export class BookingController {
-  constructor(private readonly bookingService: BookingService) {}
+export class BookingsController {
+  constructor(private readonly bookingsService: BookingsService) {}
 
   @Post()
-  create(@Body() createBookingDto: CreateBookingDto) {
-    return this.bookingService.create(createBookingDto);
+  async create(@Body() createBookingDto: CreateBookingDto): Promise<Booking> {
+    try {
+      return await this.bookingsService.createBooking(createBookingDto);
+    } catch (error) {
+      throw new BadRequestException(error.message);
+    }
   }
 
-  @Get()
-  findAll() {
-    return this.bookingService.findAll();
-  }
+  @Get('calculate-price')
+  async calculatePrice(
+    @Body('ticketCount') ticketCount: number,
+    @Body('seatClass') seatClass: string,
+    @Body('flightId') flightId: string,
+  ): Promise<{ totalPrice: number }> {
+    try {
+      // Gọi service để tính tổng giá
+      const totalPrice = await this.bookingsService.calculateTotalPrice(
+        ticketCount,
+        seatClass,
+        flightId,
+      );
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.bookingService.findOne(id);
-  }
-
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateBookingDto: UpdateBookingDto) {
-    return this.bookingService.update(id, updateBookingDto);
-  }
-
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.bookingService.remove(id);
+      // Trả về kết quả
+      return { totalPrice };
+    } catch (error) {
+      // Xử lý lỗi và trả về thông báo lỗi
+      throw new Error(error.message || 'Error calculating total price');
+    }
   }
 }

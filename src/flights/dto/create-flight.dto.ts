@@ -33,8 +33,4 @@ export class CreateFlightDto {
   @ApiProperty()
   @IsEnum(['scheduled', 'delayed', 'canceled', 'completed'])
   status: 'scheduled' | 'delayed' | 'canceled' | 'completed';
-
-  @ApiProperty()
-  @IsNumber()
-  price: number;
 }

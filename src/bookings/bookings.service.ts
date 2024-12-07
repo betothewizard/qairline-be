@@ -1,16 +1,15 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { Booking } from './entities/booking.entity';
 import { CreateBookingDto } from './dto/create-booking.dto';
-import { UpdateBookingDto } from './dto/update-booking.dto';
+import { Booking } from './entities/booking.entity';
+import { BookingDetail } from 'src/booking-details/entities/booking-detail.entity';
 import { Flight } from 'src/flights/entities/flight.entity';
 import { UserEntity } from 'src/users/entities/user.entity';
-
-import { BookingDetail } from 'src/booking-details/entities/booking-detail.entity';
+import { Seat } from 'src/seats/entities/seat.entity';
 
 @Injectable()
-export class BookingService {
+export class BookingsService {
   constructor(
     @InjectRepository(Booking)
     private bookingRepository: Repository<Booking>,
@@ -20,85 +19,75 @@ export class BookingService {
     private userRepository: Repository<UserEntity>,
     @InjectRepository(BookingDetail)
     private bookingDetailRepository: Repository<BookingDetail>,
+    @InjectRepository(Seat)
+    private seatRepository: Repository<Seat>,
   ) {}
 
-  async create(createBookingDto: CreateBookingDto): Promise<Booking> {
-    const { flightId, userId, bookingDetails, totalPrice } = createBookingDto;
+  async createBooking(createBookingDto: CreateBookingDto): Promise<Booking> {
+    // Lấy thông tin người dùng và chuyến bay từ database
+    const user = await this.userRepository.findOneBy({
+      id: createBookingDto.user_id,
+    });
+    if (!user) {
+      throw new Error('User not found');
+    }
 
-    // Kiểm tra Flight và User
-    const flight = await this.flightRepository.findOne({
-      where: { id: flightId },
+    const flight = await this.flightRepository.findOneBy({
+      id: createBookingDto.flight_id,
     });
     if (!flight) {
-      throw new NotFoundException(`Flight with ID ${flightId} not found`);
+      throw new Error('Flight not found');
     }
 
-    const user = await this.userRepository.findOne({ where: { id: userId } });
-    if (!user) {
-      throw new NotFoundException(`User with ID ${userId} not found`);
-    }
-
-    // Tạo Booking
+    // Tạo booking mới
     const booking = this.bookingRepository.create({
-      flight,
-      user,
-      total_price: totalPrice,
+      booking_code: createBookingDto.booking_code,
+      total_price: createBookingDto.total_price,
+      status: createBookingDto.status || 'pending',
+      user: user,
+      flight: flight,
     });
 
-    await this.bookingRepository.save(booking);
+    // Lưu booking vào database
+    const savedBooking = await this.bookingRepository.save(booking);
 
-    // Lưu BookingDetails
-    for (const detail of bookingDetails) {
+    // Xử lý booking details
+    for (const detail of createBookingDto.bookingDetails) {
       const bookingDetail = this.bookingDetailRepository.create({
-        booking,
-        seat_number: detail.seatNumber,
-        passenger: detail.passenger, // Đây là quan hệ với bảng Passenger
+        booking: savedBooking,
+        passenger: { id: detail.passenger_id }, // Gán đối tượng passenger
+        seat: { id: detail.seat_id }, // Gán đối tượng seat
       });
+
+      // Lưu từng booking detail vào database
       await this.bookingDetailRepository.save(bookingDetail);
     }
 
-    return this.bookingRepository.findOne({
-      where: { id: booking.id },
-      relations: [
-        'user',
-        'flight',
-        'bookingDetails',
-        'bookingDetails.passenger',
-      ],
-    });
+    return savedBooking;
   }
 
-  async findAll(): Promise<Booking[]> {
-    return this.bookingRepository.find({
-      relations: ['user', 'flight', 'bookingDetails'],
+  async calculateTotalPrice(
+    ticketCount: number,
+    seatClass: string,
+    flightId: string,
+  ): Promise<number> {
+    // Lấy giá của ghế tương ứng với seatClass và flightId
+    const flight = await this.flightRepository.findOne({
+      where: { id: flightId },
+      relations: ['seats'], // Giả sử flight có nhiều ghế
     });
-  }
 
-  async findOne(id: string): Promise<Booking> {
-    const booking = await this.bookingRepository.findOne({
-      where: { id },
-      relations: ['user', 'flight', 'bookingDetails'],
-    });
-
-    if (!booking) {
-      throw new NotFoundException(`Booking with ID ${id} not found`);
+    if (!flight) {
+      throw new Error('Flight not found');
     }
 
-    return booking;
-  }
-
-  async update(
-    id: string,
-    updateBookingDto: UpdateBookingDto,
-  ): Promise<Booking> {
-    const booking = await this.findOne(id);
-    Object.assign(booking, updateBookingDto);
-
-    return this.bookingRepository.save(booking);
-  }
-
-  async remove(id: string): Promise<void> {
-    const booking = await this.findOne(id);
-    await this.bookingRepository.remove(booking);
+    const seat = flight.seats.find((seat) => seat.ticket_class === seatClass); // Tìm ghế theo loại
+    if (!seat) {
+      throw new Error('Seat class not found');
+    }
+    console.log(seat.price + ' ' + seat.ticket_class + ' ' + seat.id);
+    // Tính tổng giá
+    const totalPrice = Number(seat.price) * ticketCount; // Giá ghế x số lượng vé
+    return totalPrice;
   }
 }
