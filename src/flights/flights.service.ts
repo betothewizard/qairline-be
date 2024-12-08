@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Between, Repository } from 'typeorm';
 import { Flight } from './entities/flight.entity';
@@ -6,6 +6,7 @@ import { CreateFlightDto } from './dto/create-flight.dto';
 import { UpdateFlightDto } from './dto/update-flight.dto';
 import { Seat } from 'src/seats/entities/seat.entity';
 import { SearchFlightDto } from './dto/searchFlight.dto';
+import { SearchRoundTripFlightDto } from './dto/searchRoundTripFlights.dto';
 
 @Injectable()
 export class FlightsService {
@@ -31,6 +32,19 @@ export class FlightsService {
       where: { id },
       relations: ['airplane'],
     });
+  }
+
+  async getFlightWithPromotions(flightCode: string): Promise<Flight> {
+    const flight = await this.flightRepository.findOne({
+      where: { flight_code: flightCode },
+      relations: ['promotions'], // Tải các khuyến mãi liên kết với chuyến bay
+    });
+
+    if (!flight) {
+      throw new NotFoundException('Chuyến bay không tồn tại.');
+    }
+
+    return flight;
   }
 
   // flights.service.ts
@@ -66,6 +80,92 @@ export class FlightsService {
       arrival_time: flight.arrival_time,
       available_seats: flight.seats.filter((seat) => !seat.isBooked).length, // Số ghế còn
     }));
+  }
+
+  async searchRoundTripFlights(dto: SearchRoundTripFlightDto) {
+    const {
+      departure,
+      arrival,
+      departure_date,
+      return_date,
+      adults,
+      children,
+    } = dto;
+    const totalPassengers = Number(adults) + Number(children);
+
+    // 1. Tìm chuyến bay đi
+    const outboundFlights = await this.flightRepository.find({
+      where: {
+        origin: departure,
+        destination: arrival,
+        departure_time: Between(
+          new Date(`${departure_date} 00:00:00`),
+          new Date(`${departure_date} 23:59:59`),
+        ),
+      },
+      relations: ['seats'], // Lấy thông tin ghế
+    });
+
+    const availableOutboundFlights = outboundFlights.filter(
+      (flight) => this.calculateAvailableSeats(flight.seats) >= totalPassengers,
+    );
+
+    // 2. Tìm chuyến bay về (nếu có)
+    const inboundFlights = return_date
+      ? await this.flightRepository.find({
+          where: {
+            origin: arrival,
+            destination: departure,
+            departure_time: Between(
+              new Date(`${return_date} 00:00:00`),
+              new Date(`${return_date} 23:59:59`),
+            ),
+          },
+          relations: ['seats'],
+        })
+      : [];
+
+    const availableInboundFlights = inboundFlights.filter(
+      (flight) => this.calculateAvailableSeats(flight.seats) >= totalPassengers,
+    );
+
+    // 3. Trả về kết quả chỉ bao gồm thông tin cần thiết
+    const roundTripResults = {
+      outbound: availableOutboundFlights.map((flight) => ({
+        id: flight.id,
+        flight_code: flight.flight_code,
+        origin: flight.origin,
+        destination: flight.destination,
+        departure_time: flight.departure_time,
+        arrival_time: flight.arrival_time,
+        available_seats: flight.seats.filter((seat) => !seat.isBooked).length, // Số ghế còn
+      })),
+      inbound: availableInboundFlights.map((flight) => ({
+        id: flight.id,
+        flight_code: flight.flight_code,
+        origin: flight.origin,
+        destination: flight.destination,
+        departure_time: flight.departure_time,
+        arrival_time: flight.arrival_time,
+        available_seats: flight.seats.filter((seat) => !seat.isBooked).length, // Số ghế còn
+      })),
+    };
+
+    // Nếu không có chuyến bay đi, trả về mảng chuyến bay về nếu có
+    if (!availableOutboundFlights.length && availableInboundFlights.length) {
+      const filteredInboundFlights = availableInboundFlights.map((flight) => ({
+        id: flight.id,
+        flight_code: flight.flight_code,
+        origin: flight.origin,
+        destination: flight.destination,
+        departure_time: flight.departure_time,
+        arrival_time: flight.arrival_time,
+        available_seats: flight.seats.filter((seat) => !seat.isBooked).length, // Tính số ghế còn
+      }));
+      return { outbound: [], inbound: filteredInboundFlights };
+    }
+
+    return roundTripResults;
   }
 
   async update(id: string, updateFlightDto: UpdateFlightDto): Promise<Flight> {

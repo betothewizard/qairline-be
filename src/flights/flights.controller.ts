@@ -13,6 +13,8 @@ import { FlightsService } from './flights.service';
 import { CreateFlightDto } from './dto/create-flight.dto';
 import { UpdateFlightDto } from './dto/update-flight.dto';
 import { SearchFlightDto } from './dto/searchFlight.dto';
+import { SearchRoundTripFlightDto } from './dto/searchRoundTripFlights.dto';
+import { Flight } from './entities/flight.entity';
 
 @Controller('flights')
 export class FlightsController {
@@ -40,6 +42,18 @@ export class FlightsController {
     }
 
     return flights;
+  }
+
+  @Get('search-roundtrip')
+  async searchRoundTrip(@Query() dto: SearchRoundTripFlightDto) {
+    return this.flightsService.searchRoundTripFlights(dto);
+  }
+
+  @Get(':flightCode')
+  async getFlightWithPromotions(
+    @Param('flightCode') flightCode: string,
+  ): Promise<Flight> {
+    return this.flightsService.getFlightWithPromotions(flightCode);
   }
 
   @Get(':id')

@@ -13,6 +13,7 @@ import { AirplanesModule } from './airplanes/airplanes.module';
 import { SeatsModule } from './seats/seats.module';
 import { PassengersModule } from './passengers/passengers.module';
 import { BookingDetailsModule } from './booking-details/booking-detail.module';
+import { PromotionModule } from './promotions/promotion.module';
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -33,6 +34,7 @@ import { BookingDetailsModule } from './booking-details/booking-detail.module';
     SeatsModule,
     PassengersModule,
     BookingDetailsModule,
+    PromotionModule,
   ],
   controllers: [AppController],
   providers: [AppService],

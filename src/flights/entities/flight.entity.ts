@@ -1,6 +1,7 @@
 import { Airplane } from 'src/airplanes/entities/airplane.entity';
 import { Seat } from 'src/seats/entities/seat.entity';
 import { Booking } from 'src/bookings/entities/booking.entity';
+import { Promotion } from 'src/promotions/entities/promotion.entity';
 import {
   Entity,
   PrimaryGeneratedColumn,
@@ -8,6 +9,7 @@ import {
   CreateDateColumn,
   UpdateDateColumn,
   ManyToOne,
+  ManyToMany,
   OneToMany,
   JoinColumn,
   Index,
@@ -50,6 +52,9 @@ export class Flight {
     default: 'scheduled',
   })
   status: 'scheduled' | 'delayed' | 'canceled' | 'completed';
+
+  @ManyToMany(() => Promotion, (promotion) => promotion.flights)
+  promotions: Promotion[]; // Quan hệ với bảng Promotion
 
   @OneToMany(() => Seat, (seat) => seat.flight, { cascade: true })
   seats: Seat[];
