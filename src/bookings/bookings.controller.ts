@@ -8,6 +8,7 @@ import {
 import { BookingsService } from './bookings.service';
 import { CreateBookingDto } from './dto/create-booking.dto';
 import { Booking } from './entities/booking.entity';
+import { CalculatePriceDto } from './dto/calculate-price.dto';
 
 @Controller('bookings')
 export class BookingsController {
@@ -24,23 +25,20 @@ export class BookingsController {
 
   @Get('calculate-price')
   async calculatePrice(
-    @Body('ticketCount') ticketCount: number,
-    @Body('seatClass') seatClass: string,
-    @Body('flightId') flightId: string,
+    @Body() calculatePriceDto: CalculatePriceDto,
   ): Promise<{ totalPrice: number }> {
     try {
-      // Gọi service để tính tổng giá
-      const totalPrice = await this.bookingsService.calculateTotalPrice(
-        ticketCount,
-        seatClass,
-        flightId,
-      );
+      // Gọi service để tính tổng giá với DTO
+      const totalPrice =
+        await this.bookingsService.calculateTotalPrice(calculatePriceDto);
 
       // Trả về kết quả
       return { totalPrice };
     } catch (error) {
       // Xử lý lỗi và trả về thông báo lỗi
-      throw new Error(error.message || 'Error calculating total price');
+      throw new BadRequestException(
+        error.message || 'Error calculating total price',
+      );
     }
   }
 }

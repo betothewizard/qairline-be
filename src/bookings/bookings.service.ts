@@ -7,6 +7,7 @@ import { BookingDetail } from 'src/booking-details/entities/booking-detail.entit
 import { Flight } from 'src/flights/entities/flight.entity';
 import { UserEntity } from 'src/users/entities/user.entity';
 import { Seat } from 'src/seats/entities/seat.entity';
+import { CalculatePriceDto } from './dto/calculate-price.dto';
 
 @Injectable()
 export class BookingsService {
@@ -66,28 +67,38 @@ export class BookingsService {
     return savedBooking;
   }
 
-  async calculateTotalPrice(
-    ticketCount: number,
-    seatClass: string,
-    flightId: string,
-  ): Promise<number> {
-    // Lấy giá của ghế tương ứng với seatClass và flightId
+  async calculateTotalPrice(dto: CalculatePriceDto): Promise<number> {
+    const { ticketCount, seatClass, flightId, discount } = dto;
+
+    // Lấy thông tin chuyến bay và ghế
     const flight = await this.flightRepository.findOne({
       where: { id: flightId },
-      relations: ['seats'], // Giả sử flight có nhiều ghế
+      relations: ['seats'], // Đảm bảo load các ghế liên quan
     });
 
     if (!flight) {
-      throw new Error('Flight not found');
+      throw new Error('Flight not found'); // Không tìm thấy chuyến bay
     }
 
-    const seat = flight.seats.find((seat) => seat.ticket_class === seatClass); // Tìm ghế theo loại
+    // Tìm ghế theo loại ghế (seatClass)
+    const seat = flight.seats.find((seat) => seat.ticket_class === seatClass);
     if (!seat) {
-      throw new Error('Seat class not found');
+      throw new Error('Seat class not found'); // Không tìm thấy loại ghế
     }
-    console.log(seat.price + ' ' + seat.ticket_class + ' ' + seat.id);
-    // Tính tổng giá
-    const totalPrice = Number(seat.price) * ticketCount; // Giá ghế x số lượng vé
+
+    // Tính tổng giá vé
+    let totalPrice = Number(seat.price) * ticketCount;
+
+    // Áp dụng giảm giá (nếu có)
+    if (discount && discount > 0) {
+      totalPrice *= 1 - discount / 100;
+    }
+
+    // Đảm bảo tổng giá không âm
+    if (totalPrice < 0) {
+      throw new Error('Total price cannot be negative.');
+    }
+
     return totalPrice;
   }
 }
