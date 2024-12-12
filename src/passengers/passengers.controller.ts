@@ -11,9 +11,9 @@ export class PassengersController {
   // Tạo hành khách mới
   @Post()
   async create(
-    @Body() createPassengerDto: CreatePassengerDto,
-  ): Promise<Passenger> {
-    return this.passengersService.create(createPassengerDto);
+    @Body() createPassengerDtos: CreatePassengerDto[],
+  ): Promise<Passenger[]> {
+    return this.passengersService.createMany(createPassengerDtos);
   }
 
   // Lấy tất cả hành khách

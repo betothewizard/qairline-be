@@ -70,16 +70,36 @@ export class FlightsService {
       (flight) => this.calculateAvailableSeats(flight.seats) >= totalPassengers,
     );
 
-    // Trả kết quả với số ghế còn trống
-    return filteredFlights.map((flight) => ({
-      id: flight.id,
-      flight_code: flight.flight_code,
-      origin: flight.origin,
-      destination: flight.destination,
-      departure_time: flight.departure_time,
-      arrival_time: flight.arrival_time,
-      available_seats: flight.seats.filter((seat) => !seat.isBooked).length, // Số ghế còn
-    }));
+    // Trả kết quả với thông tin các hạng ghế còn chỗ và giá của chúng
+    return filteredFlights.map((flight) => {
+      // Tạo một đối tượng thống kê số ghế trống và giá theo từng loại
+      const seatClassesAvailability = flight.seats
+        .filter((seat) => !seat.isBooked) // Lọc các ghế chưa được đặt
+        .reduce(
+          (acc, seat) => {
+            // Nếu chưa có hạng ghế trong đối tượng, thêm vào
+            if (!acc[seat.ticket_class]) {
+              acc[seat.ticket_class] = {
+                availableSeats: 0,
+                price: Number(seat.price), // Giá của hạng ghế
+              };
+            }
+            acc[seat.ticket_class].availableSeats += 1; // Tăng số lượng ghế trống
+            return acc;
+          },
+          {} as Record<string, { availableSeats: number; price: number }>,
+        );
+
+      return {
+        id: flight.id,
+        flight_code: flight.flight_code,
+        origin: flight.origin,
+        destination: flight.destination,
+        departure_time: flight.departure_time,
+        arrival_time: flight.arrival_time,
+        available_seat_classes: seatClassesAvailability, // Danh sách hạng ghế còn chỗ và giá
+      };
+    });
   }
 
   async searchRoundTripFlights(dto: SearchRoundTripFlightDto) {
@@ -93,6 +113,25 @@ export class FlightsService {
     } = dto;
     const totalPassengers = Number(adults) + Number(children);
 
+    // Helper function to get available seats and prices by class
+    const getSeatAvailability = (seats: Seat[]) => {
+      return seats
+        .filter((seat) => !seat.isBooked) // Chỉ ghế chưa được đặt
+        .reduce(
+          (acc, seat) => {
+            if (!acc[seat.ticket_class]) {
+              acc[seat.ticket_class] = {
+                availableSeats: 0,
+                price: Number(seat.price),
+              };
+            }
+            acc[seat.ticket_class].availableSeats += 1;
+            return acc;
+          },
+          {} as Record<string, { availableSeats: number; price: number }>,
+        );
+    };
+
     // 1. Tìm chuyến bay đi
     const outboundFlights = await this.flightRepository.find({
       where: {
@@ -103,12 +142,29 @@ export class FlightsService {
           new Date(`${departure_date} 23:59:59`),
         ),
       },
-      relations: ['seats'], // Lấy thông tin ghế
+      relations: ['seats'],
     });
 
-    const availableOutboundFlights = outboundFlights.filter(
-      (flight) => this.calculateAvailableSeats(flight.seats) >= totalPassengers,
-    );
+    const availableOutboundFlights = outboundFlights
+      .map((flight) => {
+        const seatAvailability = getSeatAvailability(flight.seats);
+        const totalAvailableSeats = Object.values(seatAvailability).reduce(
+          (sum, { availableSeats }) => sum + availableSeats,
+          0,
+        );
+        return totalAvailableSeats >= totalPassengers
+          ? {
+              id: flight.id,
+              flight_code: flight.flight_code,
+              origin: flight.origin,
+              destination: flight.destination,
+              departure_time: flight.departure_time,
+              arrival_time: flight.arrival_time,
+              available_seat_classes: seatAvailability,
+            }
+          : null;
+      })
+      .filter(Boolean);
 
     // 2. Tìm chuyến bay về (nếu có)
     const inboundFlights = return_date
@@ -125,47 +181,32 @@ export class FlightsService {
         })
       : [];
 
-    const availableInboundFlights = inboundFlights.filter(
-      (flight) => this.calculateAvailableSeats(flight.seats) >= totalPassengers,
-    );
+    const availableInboundFlights = inboundFlights
+      .map((flight) => {
+        const seatAvailability = getSeatAvailability(flight.seats);
+        const totalAvailableSeats = Object.values(seatAvailability).reduce(
+          (sum, { availableSeats }) => sum + availableSeats,
+          0,
+        );
+        return totalAvailableSeats >= totalPassengers
+          ? {
+              id: flight.id,
+              flight_code: flight.flight_code,
+              origin: flight.origin,
+              destination: flight.destination,
+              departure_time: flight.departure_time,
+              arrival_time: flight.arrival_time,
+              available_seat_classes: seatAvailability,
+            }
+          : null;
+      })
+      .filter(Boolean);
 
-    // 3. Trả về kết quả chỉ bao gồm thông tin cần thiết
-    const roundTripResults = {
-      outbound: availableOutboundFlights.map((flight) => ({
-        id: flight.id,
-        flight_code: flight.flight_code,
-        origin: flight.origin,
-        destination: flight.destination,
-        departure_time: flight.departure_time,
-        arrival_time: flight.arrival_time,
-        available_seats: flight.seats.filter((seat) => !seat.isBooked).length, // Số ghế còn
-      })),
-      inbound: availableInboundFlights.map((flight) => ({
-        id: flight.id,
-        flight_code: flight.flight_code,
-        origin: flight.origin,
-        destination: flight.destination,
-        departure_time: flight.departure_time,
-        arrival_time: flight.arrival_time,
-        available_seats: flight.seats.filter((seat) => !seat.isBooked).length, // Số ghế còn
-      })),
+    // 3. Trả kết quả
+    return {
+      outbound: availableOutboundFlights,
+      inbound: availableInboundFlights,
     };
-
-    // Nếu không có chuyến bay đi, trả về mảng chuyến bay về nếu có
-    if (!availableOutboundFlights.length && availableInboundFlights.length) {
-      const filteredInboundFlights = availableInboundFlights.map((flight) => ({
-        id: flight.id,
-        flight_code: flight.flight_code,
-        origin: flight.origin,
-        destination: flight.destination,
-        departure_time: flight.departure_time,
-        arrival_time: flight.arrival_time,
-        available_seats: flight.seats.filter((seat) => !seat.isBooked).length, // Tính số ghế còn
-      }));
-      return { outbound: [], inbound: filteredInboundFlights };
-    }
-
-    return roundTripResults;
   }
 
   async update(id: string, updateFlightDto: UpdateFlightDto): Promise<Flight> {

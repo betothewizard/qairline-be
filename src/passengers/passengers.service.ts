@@ -13,9 +13,16 @@ export class PassengersService {
   ) {}
 
   // Tạo hành khách mới
-  async create(createPassengerDto: CreatePassengerDto): Promise<Passenger> {
-    const passenger = this.passengerRepository.create(createPassengerDto);
-    return this.passengerRepository.save(passenger);
+  async createMany(
+    createPassengerDtos: CreatePassengerDto[],
+  ): Promise<Passenger[]> {
+    // Tạo các Passenger từ DTO
+    const passengers = createPassengerDtos.map((dto) =>
+      this.passengerRepository.create(dto),
+    );
+
+    // Lưu toàn bộ vào cơ sở dữ liệu
+    return await this.passengerRepository.save(passengers);
   }
 
   // Lấy tất cả hành khách
