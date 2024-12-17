@@ -23,6 +23,9 @@ export class Promotion {
   @Column({ type: 'decimal', precision: 10, scale: 2, default: 0 })
   discountValue: number;
 
+  @Column({ type: 'enum', enum: ['fixed', 'percentage'], default: 'fixed' })
+  discountType: 'fixed' | 'percentage';
+
   @Column({ length: 50, unique: true, nullable: true }) // Mã khuyến mãi, unique đảm bảo không trùng lặp
   promotionCode: string;
 

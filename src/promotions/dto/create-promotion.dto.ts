@@ -8,6 +8,11 @@ import {
   IsDateString,
 } from 'class-validator';
 
+enum DiscountType {
+  Fixed = 'fixed',
+  Percentage = 'percentage',
+}
+
 export class CreatePromotionDto {
   @IsString()
   @IsNotEmpty()
@@ -20,6 +25,10 @@ export class CreatePromotionDto {
   @IsNotEmpty()
   @IsNumber()
   discountValue: number;
+
+  @IsNotEmpty()
+  @IsString()
+  discountType: DiscountType;
 
   @IsString()
   @IsNotEmpty()

@@ -12,8 +12,12 @@ export class PassengersController {
   @Post()
   async create(
     @Body() createPassengerDtos: CreatePassengerDto[],
-  ): Promise<Passenger[]> {
-    return this.passengersService.createMany(createPassengerDtos);
+  ): Promise<string[]> {
+    const passengers =
+      await this.passengersService.createMany(createPassengerDtos);
+
+    // Trả về danh sách ID theo đúng thứ tự
+    return passengers.map((p) => p.id);
   }
 
   // Lấy tất cả hành khách
