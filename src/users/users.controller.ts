@@ -42,6 +42,7 @@ export class UsersController {
   }
 
   @Get('/:id')
+  @UseGuards(JwtAuthGuard)
   async findOne(@Param('id') id: number): Promise<UserEntity> {
     return this.userService.findOne(id);
   }
