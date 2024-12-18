@@ -43,20 +43,20 @@ export class UsersController {
 
   @Get('/:id')
   @UseGuards(JwtAuthGuard)
-  async findOne(@Param('id') id: number): Promise<UserEntity> {
+  async findOne(@Param('id') id: string): Promise<UserEntity> {
     return this.userService.findOne(id);
   }
 
   @Put('/:id')
   async update(
-    @Param('id') id: number,
+    @Param('id') id: string,
     @Body() usersDto: UsersDto,
   ): Promise<UserEntity> {
     return this.userService.update(id, usersDto);
   }
 
   @Delete('/:id')
-  async delete(@Param('id') id: number): Promise<boolean> {
+  async delete(@Param('id') id: string): Promise<boolean> {
     return this.userService.delete(id);
   }
 }

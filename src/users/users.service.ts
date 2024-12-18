@@ -64,16 +64,16 @@ export class UserService {
     return this.userRepository.find();
   }
 
-  async findOne(id: number): Promise<UserEntity> {
+  async findOne(id: string): Promise<UserEntity> {
     return this.userRepository.findOneBy({ id: id.toString() });
   }
 
-  async update(id: number, notesDto: UsersDto): Promise<UserEntity> {
+  async update(id: string, notesDto: UsersDto): Promise<UserEntity> {
     await this.userRepository.update(id, notesDto);
     return this.findOne(id);
   }
 
-  async delete(id: number): Promise<boolean> {
+  async delete(id: string): Promise<boolean> {
     const result = await this.userRepository.delete(id);
     return result.affected > 0;
   }
