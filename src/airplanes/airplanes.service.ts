@@ -34,6 +34,11 @@ export class AirplanesService {
     if (!airplane) {
       throw new Error('Airplane not found');
     }
+
+    // Cập nhật các trường trong DTO
+    Object.assign(airplane, updateAirplaneDto);
+
+    // Đảm bảo xử lý ngày nếu cần
     if (updateAirplaneDto.last_service_at) {
       airplane.last_service_at = new Date(updateAirplaneDto.last_service_at);
     }
