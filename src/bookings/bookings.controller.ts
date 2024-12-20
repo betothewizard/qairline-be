@@ -41,4 +41,9 @@ export class BookingsController {
       );
     }
   }
+
+  @Get()
+  async getAllBookings() {
+    return await this.bookingsService.getBookings();
+  }
 }

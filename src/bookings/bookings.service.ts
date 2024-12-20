@@ -67,8 +67,33 @@ export class BookingsService {
     return savedBooking;
   }
 
+  async getBookings(): Promise<
+    {
+      bookingCode: string;
+      fullName: string;
+      flightCode: string;
+      origin: string;
+      destination: string;
+      totalPrice: number;
+      status: string;
+    }[]
+  > {
+    const bookings = await this.bookingRepository.find({
+      relations: ['user', 'flight'], // Đảm bảo load quan hệ liên quan
+    });
+
+    return bookings.map((booking) => ({
+      bookingCode: booking.booking_code,
+      fullName: booking.user?.fullName || 'Unknown', // Tránh lỗi khi user null
+      flightCode: booking.flight?.flight_code || 'Unknown', // Tránh lỗi khi flight null
+      origin: booking.flight?.origin || 'Unknown',
+      destination: booking.flight?.destination || 'Unknown',
+      totalPrice: booking.total_price,
+      status: booking.status,
+    }));
+  }
   async calculateTotalPrice(dto: CalculatePriceDto): Promise<number> {
-    const { ticketCount, seatClass, flightId, discount } = dto;
+    const { ticketCount, seatClass, flightId, discount, discountType } = dto;
 
     // Lấy thông tin chuyến bay và ghế
     const flight = await this.flightRepository.findOne({
@@ -86,12 +111,18 @@ export class BookingsService {
       throw new Error('Seat class not found'); // Không tìm thấy loại ghế
     }
 
-    // Tính tổng giá vé
+    // Tính giá vé ban đầu (trước khi giảm giá)
     let totalPrice = Number(seat.price) * ticketCount;
 
-    // Áp dụng giảm giá (nếu có)
+    // Áp dụng giảm giá nếu có
     if (discount && discount > 0) {
-      totalPrice *= 1 - discount / 100;
+      if (discountType === 'percentage') {
+        // Giảm giá theo phần trăm
+        totalPrice *= 1 - discount / 100;
+      } else if (discountType === 'fixed') {
+        // Giảm giá cố định
+        totalPrice -= discount;
+      }
     }
 
     // Đảm bảo tổng giá không âm

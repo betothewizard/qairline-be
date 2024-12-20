@@ -5,6 +5,7 @@ import {
   Min,
   IsOptional,
   IsNumber,
+  IsIn,
 } from 'class-validator';
 
 export class CalculatePriceDto {
@@ -27,5 +28,11 @@ export class CalculatePriceDto {
     },
   )
   @Min(0, { message: 'Discount không được âm.' })
-  discount?: number; // Thuộc tính không bắt buộc
+  discount?: number; // Giá trị giảm giá
+
+  @IsOptional()
+  @IsIn(['fixed', 'percentage'], {
+    message: 'Loại khuyến mãi chỉ có thể là fixed hoặc percentage.',
+  })
+  discountType?: 'fixed' | 'percentage'; // Loại khuyến mãi
 }

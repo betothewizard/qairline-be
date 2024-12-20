@@ -34,17 +34,47 @@ export class FlightsService {
     });
   }
 
-  async getFlightWithPromotions(flightCode: string): Promise<Flight> {
+  async getFlightWithPromotions(flightCode: string): Promise<any> {
     const flight = await this.flightRepository.findOne({
       where: { flight_code: flightCode },
-      relations: ['promotions'], // Tải các khuyến mãi liên kết với chuyến bay
+      relations: ['promotions', 'seats'], // Đảm bảo tải cả khuyến mãi và ghế
     });
 
     if (!flight) {
       throw new NotFoundException('Chuyến bay không tồn tại.');
     }
 
-    return flight;
+    // Kiểm tra nếu seats không phải là undefined hoặc null
+    const availableSeats = flight.seats
+      ? flight.seats.filter((seat) => !seat.isBooked) // Lọc ghế chưa được đặt
+      : []; // Nếu không có ghế, trả về mảng rỗng
+
+    // Chỉ chọn các thông tin cần thiết để trả về
+    return {
+      flight_code: flight.flight_code,
+      airplane: flight.airplane,
+      origin: flight.origin,
+      destination: flight.destination,
+      departure_time: flight.departure_time,
+      arrival_time: flight.arrival_time,
+      available_seat_classes: availableSeats.reduce((acc, seat) => {
+        if (!acc[seat.ticket_class]) {
+          acc[seat.ticket_class] = {
+            availableSeats: 0,
+            price: seat.price,
+          };
+        }
+        acc[seat.ticket_class].availableSeats += 1; // Tăng số lượng ghế trống
+        return acc;
+      }, {}),
+      promotions: flight.promotions.map((promotion) => ({
+        promotionCode: promotion.promotionCode,
+        title: promotion.title,
+        description: promotion.description,
+        discount: promotion.discountValue,
+        discountType: promotion.discountType,
+      })),
+    };
   }
 
   // flights.service.ts
