@@ -12,7 +12,7 @@ export class MailService {
       await this.mailerService.sendMail({
         to: user.email,
         subject: 'Welcome to Nice App! Confirm your Email',
-        template: './reset-password', // Đảm bảo có file activation.hbs trong thư mục templates
+        template: './activation', // Đảm bảo có file activation.hbs trong thư mục templates
         context: {
           name: 'Huy',
           url,

@@ -8,6 +8,7 @@ import {
   Delete,
   Query,
   BadRequestException,
+  Put,
 } from '@nestjs/common';
 import { FlightsService } from './flights.service';
 import { CreateFlightDto } from './dto/create-flight.dto';
@@ -49,7 +50,7 @@ export class FlightsController {
     return this.flightsService.searchRoundTripFlights(dto);
   }
 
-  @Get(':flightCode')
+  @Get('by-code/:flightCode')
   async getFlightWithPromotions(
     @Param('flightCode') flightCode: string,
   ): Promise<Flight> {
@@ -63,6 +64,14 @@ export class FlightsController {
 
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateFlightDto: UpdateFlightDto) {
+    return this.flightsService.update(id, updateFlightDto);
+  }
+
+  @Put(':id')
+  async updateFlight(
+    @Param('id') id: string,
+    @Body() updateFlightDto: UpdateFlightDto,
+  ): Promise<Flight> {
     return this.flightsService.update(id, updateFlightDto);
   }
 
