@@ -42,10 +42,6 @@ export class CreatePromotionDto {
   @IsDateString()
   endDate: Date;
 
-  @IsOptional()
-  @IsString()
-  image?: string;
-
   @IsBoolean()
   @IsOptional()
   isActive?: boolean;

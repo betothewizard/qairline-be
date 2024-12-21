@@ -4,11 +4,10 @@ import { PromotionController } from './promotion.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Promotion } from './entities/promotion.entity';
 import { Flight } from 'src/flights/entities/flight.entity';
-import { SupabaseService } from 'src/supabase/supabase.service';
 
 @Module({
   imports: [TypeOrmModule.forFeature([Promotion, Flight])],
-  providers: [PromotionService, SupabaseService],
+  providers: [PromotionService],
   controllers: [PromotionController],
 })
 export class PromotionModule {}

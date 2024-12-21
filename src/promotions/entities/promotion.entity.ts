@@ -35,9 +35,6 @@ export class Promotion {
   @Column('timestamp')
   endDate: Date;
 
-  @Column({ nullable: true })
-  image: string;
-
   @Column({ default: true })
   isActive: boolean;
 
