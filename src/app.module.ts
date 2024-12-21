@@ -14,6 +14,7 @@ import { SeatsModule } from './seats/seats.module';
 import { PassengersModule } from './passengers/passengers.module';
 import { BookingDetailsModule } from './booking-details/booking-detail.module';
 import { PromotionModule } from './promotions/promotion.module';
+import { MulterModule } from '@nestjs/platform-express';
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -35,6 +36,7 @@ import { PromotionModule } from './promotions/promotion.module';
     PassengersModule,
     BookingDetailsModule,
     PromotionModule,
+    MulterModule.register(),
   ],
   controllers: [AppController],
   providers: [AppService],

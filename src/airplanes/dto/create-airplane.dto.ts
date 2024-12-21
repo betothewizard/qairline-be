@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsString, IsInt, IsOptional } from 'class-validator';
+import { IsString, IsInt, IsOptional, IsDateString } from 'class-validator';
 
 export class CreateAirplaneDto {
   @ApiProperty()
@@ -28,4 +28,9 @@ export class CreateAirplaneDto {
   @IsOptional()
   @IsInt()
   year_of_make?: number;
+
+  @ApiProperty()
+  @IsOptional()
+  @IsDateString()
+  last_service_at?: Date;
 }

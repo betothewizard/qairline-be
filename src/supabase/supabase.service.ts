@@ -1,12 +1,10 @@
-// src/supabase/supabase.service.ts
 import { Injectable } from '@nestjs/common';
-import { createClient } from '@supabase/supabase-js';
-import { Express } from 'express'; // Import đúng kiểu Express
-//import { Multer } from 'multer'; // Đảm bảo rằng bạn đã cài đặt @types/multer
+import { createClient, SupabaseClient } from '@supabase/supabase-js';
+import { Express } from 'express';
 
 @Injectable()
 export class SupabaseService {
-  private supabase;
+  private supabase: SupabaseClient;
 
   constructor() {
     const SUPABASE_URL = 'https://tzdgiitstqigcgmyjjhy.supabase.co';
@@ -16,31 +14,37 @@ export class SupabaseService {
     this.supabase = createClient(SUPABASE_URL, SUPABASE_API_KEY);
   }
 
-  // Tải ảnh lên Supabase Storage
+  /**
+   * Upload file lên Supabase Storage
+   * @param bucket Tên bucket trong Supabase
+   * @param file File được upload (từ Multer)
+   * @returns Đường dẫn file trong bucket
+   */
   async uploadFile(bucket: string, file: Express.Multer.File): Promise<string> {
+    const fileName = `${Date.now()}-${file.originalname}`;
     const { data, error } = await this.supabase.storage
       .from(bucket)
-      .upload(file.originalname, file.buffer, {
-        upsert: true,
+      .upload(fileName, file.buffer, {
+        contentType: file.mimetype,
+        upsert: true, // Ghi đè nếu file đã tồn tại
       });
 
     if (error) {
-      throw new Error('Error uploading file: ' + error.message);
+      throw new Error(`Error uploading file: ${error.message}`);
     }
 
-    return data?.path ?? '';
+    return data?.path ?? ''; // Trả về đường dẫn file trong bucket
   }
 
-  // Lấy URL ảnh
+  /**
+   * Lấy public URL của file từ Supabase Storage
+   * @param bucket Tên bucket
+   * @param filePath Đường dẫn file trong bucket
+   * @returns Public URL của file
+   */
   async getFileUrl(bucket: string, filePath: string): Promise<string> {
-    const { publicURL, error } = this.supabase.storage
-      .from(bucket)
-      .getPublicUrl(filePath);
+    const { data } = this.supabase.storage.from(bucket).getPublicUrl(filePath);
 
-    if (error) {
-      throw new Error('Error getting file URL: ' + error.message);
-    }
-
-    return publicURL;
+    return data.publicUrl; // Trả về URL public
   }
 }
