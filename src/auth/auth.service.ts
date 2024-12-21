@@ -73,7 +73,9 @@ export class AuthService {
       maxAge: 7 * 24 * 60 * 60 * 1000, // Thời gian hết hạn của refreshToken (7 ngày)
     });
 
-    return res.json({ message: 'Login successful' });
+    return res.json({
+      userId: user.id, // Trả về userId
+    });
   }
 
   async signUp(@Response() res, signUpDto: SignUpDto): Promise<UserEntity> {
